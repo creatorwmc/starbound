@@ -8,6 +8,7 @@ export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose
   const [showDelete, setShowDelete] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(item.title);
+  const [editingCategory, setEditingCategory] = useState(false);
   const stage = STAGES.find((s) => s.id === item.stage);
   const cat = CATEGORIES.find((c) => c.id === item.category);
   const tier = TIERS.find((t) => t.id === item.tier);
@@ -46,11 +47,39 @@ export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
           <div>
             <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "4px" }}>
-              <span style={{ fontSize: "14px" }}>{cat?.icon}</span>
+              <span
+                onClick={() => setEditingCategory(!editingCategory)}
+                style={{ fontSize: "14px", cursor: "pointer", borderBottom: `1px dashed ${theme.cardBorder}`, paddingBottom: "1px" }}
+                title="Tap to change category"
+              >
+                {cat?.icon} {cat?.label || "Uncategorized"}
+              </span>
               <span style={{ color: stage.color, fontSize: "11px", textTransform: "uppercase", letterSpacing: "2px" }}>
                 {stage.icon} {stage.label}
               </span>
             </div>
+            {editingCategory && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "8px" }}>
+                {CATEGORIES.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => {
+                      onUpdate({ ...item, category: c.id });
+                      setEditingCategory(false);
+                    }}
+                    style={{
+                      padding: "6px 12px", borderRadius: "10px",
+                      border: `1px solid ${c.id === item.category ? c.color : "rgba(255,255,255,0.1)"}`,
+                      background: c.id === item.category ? `${c.color}20` : "transparent",
+                      color: c.id === item.category ? c.color : theme.textSecondary,
+                      fontSize: "12px", cursor: "pointer",
+                    }}
+                  >
+                    {c.icon} {c.label}
+                  </button>
+                ))}
+              </div>
+            )}
             {editingTitle ? (
               <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
                 <input
