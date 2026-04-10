@@ -4,6 +4,8 @@ import { THEMES, CATEGORIES, TIERS, STAGES } from "../theme";
 export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose }) {
   const [newNote, setNewNote] = useState("");
   const [showRelease, setShowRelease] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(item.title);
   const stage = STAGES.find((s) => s.id === item.stage);
   const cat = CATEGORIES.find((c) => c.id === item.category);
   const tier = TIERS.find((t) => t.id === item.tier);
@@ -47,9 +49,57 @@ export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose
                 {stage.icon} {stage.label}
               </span>
             </div>
-            <h2 style={{ color: theme.textPrimary, fontSize: "24px", fontWeight: 700, margin: 0 }}>
-              {item.title}
-            </h2>
+            {editingTitle ? (
+              <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                <input
+                  value={titleDraft}
+                  onChange={(e) => setTitleDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && titleDraft.trim()) {
+                      onUpdate({ ...item, title: titleDraft.trim() });
+                      setEditingTitle(false);
+                    } else if (e.key === "Escape") {
+                      setTitleDraft(item.title);
+                      setEditingTitle(false);
+                    }
+                  }}
+                  autoFocus
+                  style={{
+                    flex: 1, padding: "6px 10px", borderRadius: "8px",
+                    border: `1px solid ${theme.primary}`,
+                    background: theme.cardBg, color: theme.textPrimary,
+                    fontSize: "20px", fontWeight: 700, outline: "none",
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    if (titleDraft.trim()) {
+                      onUpdate({ ...item, title: titleDraft.trim() });
+                      setEditingTitle(false);
+                    }
+                  }}
+                  style={{
+                    padding: "6px 12px", borderRadius: "8px",
+                    background: `${theme.primary}30`, border: `1px solid ${theme.primary}50`,
+                    color: theme.primary, fontSize: "13px", cursor: "pointer",
+                  }}
+                >
+                  Save
+                </button>
+              </div>
+            ) : (
+              <h2
+                onClick={() => { setTitleDraft(item.title); setEditingTitle(true); }}
+                style={{
+                  color: theme.textPrimary, fontSize: "24px", fontWeight: 700, margin: 0,
+                  cursor: "pointer", borderBottom: `1px dashed ${theme.cardBorder}`,
+                  paddingBottom: "2px",
+                }}
+                title="Tap to edit"
+              >
+                {item.title}
+              </h2>
+            )}
             <span style={{ color: theme.textSecondary, fontSize: "12px" }}>
               {tier?.icon} {tier?.label} • {item.owner === "shared" ? "Ours" : `${THEMES[item.owner]?.name}'s`}
             </span>
