@@ -2,8 +2,10 @@ import { memo } from "react";
 import { THEMES, TIERS, STAGES } from "../theme";
 import { generateStarPosition } from "../utils/starPositions";
 
-const Star = memo(function Star({ item, theme, onClick, index, isNew }) {
-  const pos = generateStarPosition(item.id, index);
+const Star = memo(function Star({ item, theme, onClick, index, isNew, clusterPos }) {
+  const originalPos = generateStarPosition(item.id, index);
+  const pos = clusterPos || originalPos;
+  const inConstellation = !!clusterPos;
   const tier = TIERS.find((t) => t.id === item.tier) || TIERS[1];
   const stage = STAGES.find((s) => s.id === item.stage);
   const ownerTheme = item.owner === "shared" ? null : THEMES[item.owner];
@@ -47,7 +49,7 @@ const Star = memo(function Star({ item, theme, onClick, index, isNew }) {
         width: `${baseSize * 2.5}px`,
         height: `${baseSize * 2.5}px`,
         cursor: "pointer",
-        transition: "all 0.3s ease",
+        transition: inConstellation ? "left 2s ease, top 2s ease, all 0.3s ease" : "all 0.3s ease",
         zIndex: isNew ? 10 : isDone ? 3 : 2,
         animation: isNew ? "starBirth 2s ease-out forwards" : undefined,
       }}

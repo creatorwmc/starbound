@@ -18,6 +18,7 @@ export default function NightSky({
   timelineMode,
   setTimelineMode,
   newStarId,
+  clusterPositions,
 }) {
   const [viewDate, setViewDate] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -119,7 +120,7 @@ export default function NightSky({
 
       {/* Bucket list stars */}
       {displayItems.map((item, i) => (
-        <Star key={item.id} item={item} theme={theme} onClick={immersive ? () => {} : onItemClick} index={i} isNew={item.id === newStarId} />
+        <Star key={item.id} item={item} theme={theme} onClick={immersive ? () => {} : onItemClick} index={i} isNew={item.id === newStarId} clusterPos={clusterPositions?.[item.id]} />
       ))}
 
       {/* Ground / horizon with homestead silhouette */}

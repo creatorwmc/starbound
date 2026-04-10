@@ -3,7 +3,9 @@ import { THEMES } from "./theme";
 import { useItems } from "./hooks/useItems";
 import { useMessages } from "./hooks/useMessages";
 import { useTriggers } from "./hooks/useTriggers";
+import { useConstellations } from "./hooks/useConstellations";
 import FirstTimeSetup from "./components/FirstTimeSetup";
+import ConstellationCelebration from "./components/ConstellationCelebration";
 import NightSky from "./components/NightSky";
 import BucketListView from "./components/BucketListView";
 import ActivityFeed from "./components/ActivityFeed";
@@ -34,6 +36,7 @@ export default function App() {
   const { items, loading, addItem, updateItem, deleteItem, newStarId } = useItems();
   const { messages, sendMessage } = useMessages();
   const { triggers, plantTrigger } = useTriggers();
+  const { clusterPositions, newConstellation } = useConstellations(items);
 
   const handleUserSelect = useCallback((user) => {
     setCurrentUser(user);
@@ -238,7 +241,7 @@ export default function App() {
             rememberThis={rememberThis} filters={filters} setFilters={setFilters}
             immersive={immersive} onToggleImmersive={setImmersive}
             timelineMode={timelineMode} setTimelineMode={setTimelineMode}
-            newStarId={newStarId}
+            newStarId={newStarId} clusterPositions={clusterPositions}
           />
         )}
         {currentView === "list" && (
@@ -262,6 +265,7 @@ export default function App() {
           onUpdate={handleUpdateItem} onClose={() => setSelectedItem(null)}
           onDelete={(id) => { deleteItem(id); setSelectedItem(null); }} />
       )}
+      {newConstellation && <ConstellationCelebration constellation={newConstellation} theme={theme} />}
       {showStaceyIntro && (
         <StaceyIntro onComplete={() => {
           setShowStaceyIntro(false);
