@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { THEMES } from "../theme";
 import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { resizeImage } from "../utils/resizeImage";
 
 export default function TheHearth({ messages, theme, currentUser, onSend }) {
   const [text, setText] = useState("");
@@ -17,18 +18,23 @@ export default function TheHearth({ messages, theme, currentUser, onSend }) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const [photoError, setPhotoError] = useState(null);
+
   const handlePhotoFile = async (file) => {
     if (!file) return;
     setUploading(true);
+    setPhotoError(null);
     try {
+      const resized = await resizeImage(file, 1200, 0.8);
       const timestamp = Date.now();
       const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
       const storageRef = ref(storage, `hearth/${timestamp}_${safeName}`);
-      await uploadBytes(storageRef, file);
+      await uploadBytes(storageRef, resized);
       const url = await getDownloadURL(storageRef);
       setPendingPhoto(url);
     } catch (err) {
       console.error("Photo upload error:", err);
+      setPhotoError("Photo upload failed — try again");
     } finally {
       setUploading(false);
     }
@@ -204,9 +210,9 @@ export default function TheHearth({ messages, theme, currentUser, onSend }) {
 
       {/* Hidden file inputs */}
       <input ref={cameraRef} type="file" accept="image/*" capture="environment"
-        style={{ display: "none" }} onChange={(e) => handlePhotoFile(e.target.files?.[0])} />
+        style={{ display: "none" }} onChange={(e) => { handlePhotoFile(e.target.files?.[0]); e.target.value = ""; }} />
       <input ref={galleryRef} type="file" accept="image/*"
-        style={{ display: "none" }} onChange={(e) => handlePhotoFile(e.target.files?.[0])} />
+        style={{ display: "none" }} onChange={(e) => { handlePhotoFile(e.target.files?.[0]); e.target.value = ""; }} />
 
       {/* Pending photo preview */}
       {pendingPhoto && (
@@ -226,6 +232,12 @@ export default function TheHearth({ messages, theme, currentUser, onSend }) {
         </div>
       )}
 
+      {photoError && (
+        <div style={{ padding: "8px 20px", color: "#ff6b6b", fontSize: "12px",
+          borderTop: `1px solid rgba(255,80,80,0.3)`, background: "rgba(255,80,80,0.08)" }}>
+          {photoError}
+        </div>
+      )}
       {uploading && (
         <div style={{ padding: "8px 20px", color: theme.textSecondary, fontSize: "12px",
           borderTop: `1px solid ${theme.cardBorder}` }}>
