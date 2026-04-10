@@ -1,22 +1,48 @@
-import { useState, useCallback } from "react";
-// import { db } from "../firebase";
-// import { collection, onSnapshot, addDoc, updateDoc, doc } from "firebase/firestore";
+import { useState, useEffect, useCallback } from "react";
+import { db } from "../firebase";
+import {
+  collection,
+  onSnapshot,
+  doc,
+  setDoc,
+  updateDoc,
+  query,
+  orderBy,
+} from "firebase/firestore";
+import { SAMPLE_ITEMS } from "../theme";
 
-// For Phase 1, items are managed in local state with sample data.
-// In Phase 2+, this hook will use Firestore onSnapshot for real-time sync.
+export function useItems() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [seeded, setSeeded] = useState(false);
 
-export function useItems(initialItems = []) {
-  const [items, setItems] = useState(initialItems);
+  // Real-time listener
+  useEffect(() => {
+    const q = query(collection(db, "items"), orderBy("createdAt", "asc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
+      setItems(data);
+      setLoading(false);
 
-  const addItem = useCallback((item) => {
-    setItems((prev) => [...prev, item]);
-    // TODO: addDoc(collection(db, "items"), item);
+      // Seed sample data if collection is empty (first run only)
+      if (data.length === 0 && !seeded) {
+        setSeeded(true);
+        SAMPLE_ITEMS.forEach((item) => {
+          setDoc(doc(db, "items", item.id), item);
+        });
+      }
+    });
+    return unsubscribe;
+  }, [seeded]);
+
+  const addItem = useCallback(async (item) => {
+    await setDoc(doc(db, "items", item.id), item);
   }, []);
 
-  const updateItem = useCallback((updated) => {
-    setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
-    // TODO: updateDoc(doc(db, "items", updated.id), updated);
+  const updateItem = useCallback(async (updated) => {
+    const { id, ...data } = updated;
+    await updateDoc(doc(db, "items", id), data);
   }, []);
 
-  return { items, addItem, updateItem, setItems };
+  return { items, loading, addItem, updateItem };
 }

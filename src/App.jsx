@@ -1,5 +1,8 @@
 import { useState, useCallback, useMemo } from "react";
-import { THEMES, SAMPLE_ITEMS, SAMPLE_MESSAGES, SAMPLE_TRIGGERS } from "./theme";
+import { THEMES } from "./theme";
+import { useItems } from "./hooks/useItems";
+import { useMessages } from "./hooks/useMessages";
+import { useTriggers } from "./hooks/useTriggers";
 import FirstTimeSetup from "./components/FirstTimeSetup";
 import NightSky from "./components/NightSky";
 import BucketListView from "./components/BucketListView";
@@ -21,12 +24,14 @@ export default function App() {
   const [showMenu, setShowMenu] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [items, setItems] = useState(SAMPLE_ITEMS);
-  const [messages, setMessages] = useState(SAMPLE_MESSAGES);
-  const [triggers, setTriggers] = useState(SAMPLE_TRIGGERS);
   const [filters, setFilters] = useState({});
   const [immersive, setImmersive] = useState(false);
   const [timelineMode, setTimelineMode] = useState(false);
+
+  // Firestore-backed hooks
+  const { items, loading, addItem, updateItem } = useItems();
+  const { messages, sendMessage } = useMessages();
+  const { triggers, plantTrigger } = useTriggers();
 
   const handleUserSelect = useCallback((user) => {
     setCurrentUser(user);
@@ -86,28 +91,46 @@ export default function App() {
     setTimelineMode(false);
   }, []);
 
-  const handleAddItem = (newItem) => {
-    setItems((prev) => [...prev, newItem]);
+  const handleAddItem = async (newItem) => {
+    await addItem(newItem);
     setShowAddItem(false);
   };
 
-  const handleUpdateItem = (updated) => {
-    setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+  const handleUpdateItem = async (updated) => {
+    await updateItem(updated);
+    // Keep the selected item in sync with the latest from Firestore
     setSelectedItem(updated);
-  };
-
-  const handleSendMessage = (msg) => {
-    setMessages((prev) => [...prev, msg]);
-  };
-
-  const handlePlantTrigger = (trigger) => {
-    setTriggers((prev) => [...prev, trigger]);
   };
 
   if (!currentUser) {
     return (
       <div style={{ width: "100%", height: "100vh", overflow: "hidden", position: "relative" }}>
         <FirstTimeSetup onSelect={handleUserSelect} />
+      </div>
+    );
+  }
+
+  // Loading state while Firestore connects
+  if (loading) {
+    return (
+      <div style={{
+        width: "100%", height: "100vh", display: "flex",
+        alignItems: "center", justifyContent: "center",
+        background: theme.bg,
+      }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{
+            fontSize: "28px", fontWeight: 800, letterSpacing: "4px",
+            background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})`,
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            marginBottom: "12px",
+          }}>
+            STARBOUND
+          </div>
+          <div style={{ color: theme.textSecondary, fontSize: "13px", letterSpacing: "2px" }}>
+            Loading your sky...
+          </div>
+        </div>
       </div>
     );
   }
@@ -212,9 +235,9 @@ export default function App() {
           <BucketListView items={items} theme={theme} onItemClick={(item) => setSelectedItem(item)} currentUser={currentUser} />
         )}
         {currentView === "feed" && <ActivityFeed activities={activities} theme={theme} />}
-        {currentView === "jar" && <TheHearth messages={messages} theme={theme} currentUser={currentUser} onSend={handleSendMessage} />}
+        {currentView === "jar" && <TheHearth messages={messages} theme={theme} currentUser={currentUser} onSend={sendMessage} />}
         {currentView === "home" && <OurHome theme={theme} />}
-        {currentView === "gems" && <HiddenGems theme={theme} currentUser={currentUser} triggers={triggers} onPlant={handlePlantTrigger} />}
+        {currentView === "gems" && <HiddenGems theme={theme} currentUser={currentUser} triggers={triggers} onPlant={plantTrigger} />}
         {currentView === "settings" && (
           <SettingsView theme={theme} currentUser={currentUser}
             onSwitchUser={() => { handleUserSelect(currentUser === "zach" ? "stacey" : "zach"); handleNavigate("sky"); }}
