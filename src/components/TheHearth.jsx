@@ -1,26 +1,51 @@
 import { useState, useEffect, useRef } from "react";
 import { THEMES } from "../theme";
+import { storage } from "../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export default function TheHearth({ messages, theme, currentUser, onSend }) {
   const [text, setText] = useState("");
   const [replyTo, setReplyTo] = useState(null);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [pendingPhoto, setPendingPhoto] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const bottomRef = useRef(null);
+  const cameraRef = useRef(null);
+  const galleryRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const handlePhotoFile = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const timestamp = Date.now();
+      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+      const storageRef = ref(storage, `hearth/${timestamp}_${safeName}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      setPendingPhoto(url);
+    } catch (err) {
+      console.error("Photo upload error:", err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const send = () => {
-    if (!text.trim()) return;
+    if (!text.trim() && !pendingPhoto) return;
     onSend({
       text: text.trim(),
       author: currentUser,
       createdAt: new Date().toISOString(),
+      ...(pendingPhoto ? { photoUrl: pendingPhoto } : {}),
       ...(replyTo !== null ? { replyToIndex: replyTo } : {}),
     });
     setText("");
     setReplyTo(null);
+    setPendingPhoto(null);
   };
 
   return (
@@ -77,9 +102,18 @@ export default function TheHearth({ messages, theme, currentUser, onSend }) {
                     </div>
                   </div>
                 )}
-                <div style={{ color: theme.textPrimary, fontSize: "14px", lineHeight: "1.4" }}>
-                  {msg.text}
-                </div>
+                {msg.photoUrl && (
+                  <div style={{ marginBottom: msg.text ? "8px" : 0, borderRadius: "8px", overflow: "hidden" }}>
+                    <img src={msg.photoUrl} alt="" style={{
+                      maxWidth: "100%", maxHeight: "240px", objectFit: "cover", display: "block", borderRadius: "8px",
+                    }} />
+                  </div>
+                )}
+                {msg.text && (
+                  <div style={{ color: theme.textPrimary, fontSize: "14px", lineHeight: "1.4" }}>
+                    {msg.text}
+                  </div>
+                )}
                 <div style={{ color: theme.textSecondary, fontSize: "10px", marginTop: "6px", textAlign: "right" }}>
                   {authorTheme?.name} • {new Date(msg.createdAt).toLocaleString()}
                 </div>
@@ -168,19 +202,74 @@ export default function TheHearth({ messages, theme, currentUser, onSend }) {
         </div>
       )}
 
-      <div style={{ padding: "12px 20px 20px", display: "flex", gap: "8px", alignItems: "center" }}>
+      {/* Hidden file inputs */}
+      <input ref={cameraRef} type="file" accept="image/*" capture="environment"
+        style={{ display: "none" }} onChange={(e) => handlePhotoFile(e.target.files?.[0])} />
+      <input ref={galleryRef} type="file" accept="image/*"
+        style={{ display: "none" }} onChange={(e) => handlePhotoFile(e.target.files?.[0])} />
+
+      {/* Pending photo preview */}
+      {pendingPhoto && (
+        <div style={{
+          padding: "8px 20px",
+          borderTop: `1px solid ${theme.cardBorder}`,
+          display: "flex", alignItems: "center", gap: "10px",
+        }}>
+          <img src={pendingPhoto} alt="" style={{
+            width: "48px", height: "48px", borderRadius: "8px", objectFit: "cover",
+          }} />
+          <div style={{ flex: 1, color: theme.textSecondary, fontSize: "12px" }}>Photo attached</div>
+          <button onClick={() => setPendingPhoto(null)} style={{
+            background: "none", border: "none", color: theme.textSecondary,
+            fontSize: "18px", cursor: "pointer",
+          }}>×</button>
+        </div>
+      )}
+
+      {uploading && (
+        <div style={{ padding: "8px 20px", color: theme.textSecondary, fontSize: "12px",
+          borderTop: `1px solid ${theme.cardBorder}` }}>
+          Uploading photo...
+        </div>
+      )}
+
+      <div style={{ padding: "12px 20px 20px", display: "flex", gap: "6px", alignItems: "center" }}>
         <button
           onClick={() => setShowEmoji(!showEmoji)}
           style={{
-            width: "42px", height: "42px", borderRadius: "12px",
+            width: "38px", height: "38px", borderRadius: "10px",
             border: `1px solid ${showEmoji ? theme.primary : theme.cardBorder}`,
             background: showEmoji ? `${theme.primary}20` : theme.cardBg,
-            fontSize: "20px", cursor: "pointer",
+            fontSize: "18px", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
             flexShrink: 0,
           }}
         >
           😊
+        </button>
+        <button
+          onClick={() => cameraRef.current?.click()}
+          style={{
+            width: "38px", height: "38px", borderRadius: "10px",
+            border: `1px solid ${theme.cardBorder}`, background: theme.cardBg,
+            fontSize: "18px", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          📸
+        </button>
+        <button
+          onClick={() => galleryRef.current?.click()}
+          style={{
+            width: "38px", height: "38px", borderRadius: "10px",
+            border: `1px solid ${theme.cardBorder}`, background: theme.cardBg,
+            fontSize: "18px", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          🖼️
         </button>
         <input
           value={text}
@@ -189,15 +278,17 @@ export default function TheHearth({ messages, theme, currentUser, onSend }) {
           onKeyDown={(e) => e.key === "Enter" && send()}
           onFocus={() => setShowEmoji(false)}
           style={{
-            flex: 1, padding: "12px", borderRadius: "12px",
+            flex: 1, padding: "10px", borderRadius: "12px",
             border: `1px solid ${theme.cardBorder}`, background: theme.cardBg,
             color: theme.textPrimary, fontSize: "14px", outline: "none",
+            minWidth: 0,
           }}
         />
         <button onClick={send} style={{
-          padding: "12px 20px", borderRadius: "12px",
+          padding: "10px 16px", borderRadius: "12px",
           background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
           border: "none", color: "white", fontSize: "14px", cursor: "pointer",
+          flexShrink: 0,
         }}>
           Drop
         </button>

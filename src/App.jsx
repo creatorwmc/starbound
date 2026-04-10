@@ -237,7 +237,7 @@ export default function App() {
         )}
         {currentView === "feed" && <ActivityFeed activities={activities} theme={theme} />}
         {currentView === "jar" && <TheHearth messages={messages} theme={theme} currentUser={currentUser} onSend={sendMessage} />}
-        {currentView === "home" && <OurHome theme={theme} />}
+        {currentView === "home" && <OurHome theme={theme} currentUser={currentUser} />}
         {currentView === "gems" && <HiddenGems theme={theme} currentUser={currentUser} triggers={triggers} onPlant={plantTrigger} />}
         {currentView === "settings" && (
           <SettingsView theme={theme} currentUser={currentUser}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { THEMES, CATEGORIES, TIERS, STAGES } from "../theme";
+import PhotoPicker from "./PhotoPicker";
 
 export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose }) {
   const [newNote, setNewNote] = useState("");
@@ -239,18 +240,51 @@ export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose
           </div>
         </div>
 
-        {/* Media placeholder */}
-        <div style={{
-          padding: "24px", borderRadius: "14px",
-          border: `1px dashed ${theme.cardBorder}`,
-          textAlign: "center", marginBottom: "20px",
-        }}>
-          <div style={{ color: theme.textSecondary, fontSize: "13px" }}>
-            📷 Photos, videos & voice memos
-          </div>
-          <div style={{ color: theme.textSecondary, fontSize: "11px", opacity: 0.6, marginTop: "4px" }}>
-            Media upload coming in Phase 5
-          </div>
+        {/* Photos */}
+        <div style={{ marginBottom: "20px" }}>
+          <h3 style={{ color: theme.textSecondary, fontSize: "11px", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "12px" }}>
+            Photos
+          </h3>
+
+          {/* Photo gallery */}
+          {(item.media || []).filter((m) => m.type === "photo").length > 0 && (
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px",
+              marginBottom: "12px",
+            }}>
+              {(item.media || []).filter((m) => m.type === "photo").map((m, i) => (
+                <div key={i} style={{
+                  aspectRatio: "1", borderRadius: "10px", overflow: "hidden",
+                  border: `1px solid ${theme.cardBorder}`,
+                }}>
+                  <img
+                    src={m.url}
+                    alt=""
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <PhotoPicker
+            theme={theme}
+            storagePath={`items/${item.id}/photos`}
+            onPhoto={(url) => {
+              const newMedia = {
+                type: "photo",
+                url,
+                createdBy: currentUser,
+                createdAt: new Date().toISOString(),
+                stage: item.stage,
+              };
+              onUpdate({
+                ...item,
+                media: [...(item.media || []), newMedia],
+                activityCount: (item.activityCount || 0) + 1,
+              });
+            }}
+          />
         </div>
 
         {/* Release option */}
