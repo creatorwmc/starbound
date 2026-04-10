@@ -12,8 +12,9 @@ const Star = memo(function Star({ item, theme, onClick, index }) {
   const isReleased = item.stage === "released";
   const isDone = item.stage === "done";
   const isDoing = item.stage === "doing";
-  const activityBrightness = Math.min(1, 0.3 + (item.activityCount || 0) * 0.1);
-  const baseSize = tier.size * (isDone ? 1.4 : isDoing ? 1.2 : 1);
+  const activityBrightness = Math.min(1, 0.4 + (item.activityCount || 0) * 0.1);
+  const rawSize = tier.size * (isDone ? 1.4 : isDoing ? 1.2 : 1);
+  const baseSize = Math.max(rawSize, 4); // minimum size so stars are always clearly visible
 
   if (isReleased) {
     return (

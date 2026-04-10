@@ -101,18 +101,18 @@ export default function NightSky({
       {/* Sky gradient */}
       <div style={{ position: "absolute", inset: 0, background: theme.bg }} />
 
-      {/* Ambient stars */}
-      {Array.from({ length: immersive ? 100 : 60 }).map((_, i) => (
+      {/* Ambient stars — subtle backdrop, clearly smaller/dimmer than real stars */}
+      {Array.from({ length: immersive ? 80 : 30 }).map((_, i) => (
         <div key={`ambient-${i}`} style={{
           position: "absolute",
           left: `${(i * 17 + 3) % 100}%`,
           top: `${(i * 23 + 7) % (immersive ? 98 : 85)}%`,
-          width: `${1 + (i % 2)}px`,
-          height: `${1 + (i % 2)}px`,
+          width: "1px",
+          height: "1px",
           borderRadius: "50%",
-          background: `rgba(255,255,255,${immersive ? 0.4 : 0.3})`,
-          animation: "twinkle 4s ease-in-out infinite",
-          animationDelay: `${(i * 0.5) % 4}s`,
+          background: `rgba(255,255,255,${immersive ? 0.25 : 0.12})`,
+          animation: "twinkle 5s ease-in-out infinite",
+          animationDelay: `${(i * 0.5) % 5}s`,
           pointerEvents: "none",
         }} />
       ))}
