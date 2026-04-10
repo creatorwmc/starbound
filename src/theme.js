@@ -119,6 +119,12 @@ export const OUR_APPS = [
     icon: "🏥",
     url: "https://paigehospital.netlify.app",
   },
+  {
+    name: "Solitaire Plus",
+    desc: "Classic card games",
+    icon: "🃏",
+    url: "https://solitaire-plus.netlify.app",
+  },
 ];
 
 // No sample data — blank slate for real use
