@@ -111,7 +111,7 @@ export const OUR_APPS = [
     name: "Relationship Refuge",
     desc: "Games & date night toolkit",
     icon: "💜",
-    url: "https://relationship-rescue.netlify.app",
+    url: "https://relationship-refuge.netlify.app",
   },
   {
     name: "The Paige Hospital",
