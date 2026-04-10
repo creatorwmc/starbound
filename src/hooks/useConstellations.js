@@ -7,9 +7,9 @@ import {
   setDoc,
 } from "firebase/firestore";
 
-// Constellation thresholds: 1st constellation at 3, 2nd at 4, 3rd at 5, then repeat
+// Constellation thresholds: 3, 4, 5, 6, 7, then back to 3
 function getThreshold(constellationIndex) {
-  return 3 + (constellationIndex % 3); // cycles: 3, 4, 5, 3, 4, 5...
+  return 3 + (constellationIndex % 5); // cycles: 3, 4, 5, 6, 7, 3, 4, 5, 6, 7...
 }
 
 export function useConstellations(items) {

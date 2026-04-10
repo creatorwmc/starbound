@@ -357,8 +357,12 @@ export default function StaceyIntro({ onComplete }) {
         position: "absolute", inset: 0, zIndex: 200, overflow: "hidden",
         background: "linear-gradient(135deg, #0d0a1a 0%, #1a0f20 40%, #0d1520 100%)",
       }}>
-        {/* Demo stars — matching real Star component exactly */}
+        {/* Demo stars — using same category tints as real app */}
         {timelineItems.map((item, idx) => {
+          const TINTS = {
+            travel: "#c8d8ff", skills: "#d4ccff", food: "#fff4d6", experiences: "#ffe8e0",
+            home: "#d6ffe8", creative: "#ffd6e8", relationships: "#e0d6ff", wildcard: "#e8f0ff",
+          };
           const globalIdx = DEMO_ITEMS.indexOf(item);
           const originalPos = hashPosition(item.id, globalIdx);
           const clusterPos = demoClusterPositions[item.id];
@@ -366,7 +370,7 @@ export default function StaceyIntro({ onComplete }) {
           const isDone = item.stage === "done";
           const isDoing = item.stage === "doing";
           const inCluster = !!clusterPos;
-          const ownerColor = item.owner === "shared" ? "#FFEAA7" : item.owner === "stacey" ? t.starColor : THEMES.zach.starColor;
+          const starColor = TINTS[item.category] || "#e8f0ff";
           const tierSize = item.tier === 3 ? 8 : item.tier === 2 ? 5 : 3;
           const rawSize = tierSize * (isDone ? 1.4 : isDoing ? 1.2 : 1);
           const baseSize = Math.max(rawSize, 4);
@@ -384,21 +388,19 @@ export default function StaceyIntro({ onComplete }) {
             }}>
               <div style={{
                 width: "100%", height: "100%", borderRadius: "50%",
-                background: `radial-gradient(circle, ${ownerColor} 0%, ${ownerColor}80 40%, transparent 70%)`,
+                background: `radial-gradient(circle, #ffffff 0%, ${starColor} 30%, ${starColor}60 50%, transparent 70%)`,
                 opacity: brightness,
                 boxShadow: isDone
-                  ? `0 0 ${baseSize * 4}px ${ownerColor}80, 0 0 ${baseSize * 8}px ${ownerColor}40`
+                  ? `0 0 ${baseSize * 4}px ${starColor}90, 0 0 ${baseSize * 8}px ${starColor}40`
                   : isDoing
-                  ? `0 0 ${baseSize * 3}px ${ownerColor}60`
-                  : `0 0 ${baseSize * 2}px ${ownerColor}30`,
+                  ? `0 0 ${baseSize * 3}px ${starColor}60`
+                  : `0 0 ${baseSize * 2}px ${starColor}30`,
                 animation: isDoing ? "pulse 2s ease-in-out infinite" : "twinkle 3s ease-in-out infinite",
                 animationDelay: `${(globalIdx * 0.7) % 3}s`,
               }} />
             </div>
           );
         })}
-
-        {/* Constellation lines removed — constellation system will handle clustering */}
 
         {/* Ambient stars */}
         {Array.from({ length: 25 }).map((_, i) => (
