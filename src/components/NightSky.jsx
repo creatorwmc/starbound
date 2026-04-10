@@ -192,7 +192,7 @@ export default function NightSky({
       }}>
         <FilterChip label="All" active={!filters.category && !filters.stage} theme={theme}
           onClick={() => setFilters({})} />
-        {CATEGORIES.slice(0, 4).map((cat) => (
+        {CATEGORIES.map((cat) => (
           <FilterChip key={cat.id} label={cat.icon} active={filters.category === cat.id} theme={theme}
             onClick={() => setFilters((f) => ({ ...f, category: f.category === cat.id ? null : cat.id }))} />
         ))}
@@ -249,7 +249,7 @@ export default function NightSky({
         textShadow: "0 0 10px rgba(0,0,0,0.5)",
         opacity: uiOpacity, transition: uiTransition, zIndex: 5,
       }}>
-        {displayItems.filter((i) => i.stage === "done").length} ✦
+        {displayItems.length} ✧{displayItems.filter((i) => i.stage === "done").length > 0 ? ` · ${displayItems.filter((i) => i.stage === "done").length} ✦` : ""}
       </div>
 
       {/* Immersive mode exit */}
