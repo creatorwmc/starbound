@@ -76,16 +76,15 @@ export default function SettingsView({ theme, currentUser, onSwitchUser }) {
           Our Apps
         </h3>
         {OUR_APPS.map((app) => (
-          <a
+          <button
             key={app.name}
-            href={app.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={() => window.open(app.url, '_blank', 'noopener,noreferrer')}
             style={{
               display: "flex", alignItems: "center", gap: "14px",
               padding: "14px 16px", borderRadius: "14px",
               background: theme.cardBg, border: `1px solid ${theme.cardBorder}`,
-              marginBottom: "8px", textDecoration: "none", cursor: "pointer",
+              marginBottom: "8px", cursor: "pointer", width: "100%",
+              textAlign: "left", font: "inherit", color: "inherit",
             }}
           >
             <span style={{ fontSize: "24px", flexShrink: 0 }}>{app.icon}</span>
@@ -98,7 +97,7 @@ export default function SettingsView({ theme, currentUser, onSwitchUser }) {
               </div>
             </div>
             <span style={{ color: theme.textSecondary, fontSize: "14px" }}>↗</span>
-          </a>
+          </button>
         ))}
       </div>
 
