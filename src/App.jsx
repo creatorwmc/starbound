@@ -92,15 +92,14 @@ export default function App() {
     setTimelineMode(false);
   }, []);
 
-  const handleAddItem = async (newItem) => {
-    await addItem(newItem);
+  const handleAddItem = (newItem) => {
     setShowAddItem(false);
+    addItem(newItem).catch((err) => console.error("Failed to add item:", err));
   };
 
-  const handleUpdateItem = async (updated) => {
-    await updateItem(updated);
-    // Keep the selected item in sync with the latest from Firestore
+  const handleUpdateItem = (updated) => {
     setSelectedItem(updated);
+    updateItem(updated).catch((err) => console.error("Failed to update item:", err));
   };
 
   if (!currentUser) {
