@@ -15,8 +15,10 @@ import NavMenu from "./components/NavMenu";
 import AddItemModal from "./components/AddItemModal";
 import ItemDetail from "./components/ItemDetail";
 import AvatarCircle from "./components/AvatarCircle";
+import StaceyIntro from "./components/StaceyIntro";
 
 export default function App() {
+  const [showStaceyIntro, setShowStaceyIntro] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => {
     try { return localStorage.getItem("starbound_user") || null; } catch { return null; }
   });
@@ -36,6 +38,13 @@ export default function App() {
   const handleUserSelect = useCallback((user) => {
     setCurrentUser(user);
     try { localStorage.setItem("starbound_user", user); } catch {}
+    // Show intro for Stacey on first login
+    if (user === "stacey") {
+      const seen = localStorage.getItem("starbound_stacey_intro_seen");
+      if (!seen) {
+        setShowStaceyIntro(true);
+      }
+    }
   }, []);
 
   const theme = currentUser ? THEMES[currentUser] : null;
@@ -252,6 +261,12 @@ export default function App() {
         <ItemDetail item={selectedItem} theme={theme} currentUser={currentUser}
           onUpdate={handleUpdateItem} onClose={() => setSelectedItem(null)}
           onDelete={(id) => { deleteItem(id); setSelectedItem(null); }} />
+      )}
+      {showStaceyIntro && (
+        <StaceyIntro onComplete={() => {
+          setShowStaceyIntro(false);
+          try { localStorage.setItem("starbound_stacey_intro_seen", "true"); } catch {}
+        }} />
       )}
     </div>
   );
