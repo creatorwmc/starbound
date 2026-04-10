@@ -81,6 +81,7 @@ export default function App() {
     return items.filter((item) => {
       if (filters.category && item.category !== filters.category) return false;
       if (filters.stage && item.stage !== filters.stage) return false;
+      if (filters.owner && item.owner !== filters.owner) return false;
       return true;
     });
   }, [items, filters]);

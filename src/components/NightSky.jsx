@@ -190,8 +190,14 @@ export default function NightSky({
         display: "flex", gap: "6px", flexWrap: "wrap",
         opacity: uiOpacity, pointerEvents: uiPointerEvents, transition: uiTransition, zIndex: 5,
       }}>
-        <FilterChip label="All" active={!filters.category && !filters.stage} theme={theme}
+        <FilterChip label="All" active={!filters.category && !filters.stage && !filters.owner} theme={theme}
           onClick={() => setFilters({})} />
+        <FilterChip label="Ours" active={filters.owner === "shared"} theme={theme}
+          onClick={() => setFilters((f) => ({ ...f, owner: f.owner === "shared" ? null : "shared" }))} />
+        <FilterChip label="Z" active={filters.owner === "zach"} theme={theme}
+          onClick={() => setFilters((f) => ({ ...f, owner: f.owner === "zach" ? null : "zach" }))} />
+        <FilterChip label="S" active={filters.owner === "stacey"} theme={theme}
+          onClick={() => setFilters((f) => ({ ...f, owner: f.owner === "stacey" ? null : "stacey" }))} />
         {CATEGORIES.map((cat) => (
           <FilterChip key={cat.id} label={cat.icon} active={filters.category === cat.id} theme={theme}
             onClick={() => setFilters((f) => ({ ...f, category: f.category === cat.id ? null : cat.id }))} />
