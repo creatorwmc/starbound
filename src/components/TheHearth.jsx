@@ -4,6 +4,7 @@ import { THEMES } from "../theme";
 export default function TheHearth({ messages, theme, currentUser, onSend }) {
   const [text, setText] = useState("");
   const [replyTo, setReplyTo] = useState(null);
+  const [showEmoji, setShowEmoji] = useState(false);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -118,12 +119,75 @@ export default function TheHearth({ messages, theme, currentUser, onSend }) {
         </div>
       )}
 
-      <div style={{ padding: "12px 20px 20px", display: "flex", gap: "8px" }}>
+      {/* Emoji picker */}
+      {showEmoji && (
+        <div style={{
+          padding: "8px 16px 4px",
+          borderTop: `1px solid ${theme.cardBorder}`,
+          background: theme.cardBg,
+          maxHeight: "200px",
+          overflowY: "auto",
+        }}>
+          {[
+            { label: "Favorites", emojis: ["❤️", "🔥", "⭐", "👍", "😘", "🤗", "💜", "✨", "🥰", "😍", "💋", "🫶"] },
+            { label: "Smileys", emojis: ["😊", "😂", "🥹", "😭", "😏", "🤣", "😅", "😇", "🥺", "😜", "😎", "🤩", "😴", "🤔", "😳", "😱", "🫠", "🙄", "😤", "😈"] },
+            { label: "Love", emojis: ["💕", "💖", "💗", "💘", "💝", "❣️", "💞", "💓", "🫂", "💏", "💑", "👩‍❤️‍👨", "😻", "💌"] },
+            { label: "Gestures", emojis: ["👏", "🙌", "🤞", "✌️", "🤟", "👊", "💪", "🫡", "🙏", "👋", "🤝", "✊", "👐", "🫰", "🤌"] },
+            { label: "Nature", emojis: ["🌙", "🌟", "☀️", "🌈", "🌊", "🍃", "🌸", "🌻", "🌺", "🦋", "🐝", "🌿", "🍂", "❄️", "⛈️"] },
+            { label: "Animals", emojis: ["🐱", "🐶", "🐷", "🐔", "🐴", "🦊", "🐻", "🐰", "🦉", "🐝", "🐄", "🐑", "🦌"] },
+            { label: "Food", emojis: ["☕", "🍕", "🍝", "🧁", "🍰", "🍓", "🥂", "🍷", "🍻", "🥘", "🧀", "🌮", "🍣", "🍳"] },
+            { label: "Activities", emojis: ["🎵", "🎸", "🎮", "📷", "✈️", "🏕️", "🎪", "🎯", "🎨", "📚", "🏡", "🌄", "🗺️", "🧳", "🏔️"] },
+            { label: "Celebrations", emojis: ["🎉", "🥳", "🎊", "🎂", "🎁", "🪄", "🏆", "🎇", "🎆", "💐", "🍾"] },
+            { label: "Symbols", emojis: ["✅", "💯", "⚡", "🔮", "🕯️", "🗝️", "💎", "🧿", "♾️", "☮️", "💫", "🌀"] },
+          ].map((group) => (
+            <div key={group.label} style={{ marginBottom: "8px" }}>
+              <div style={{
+                color: theme.textSecondary, fontSize: "10px", textTransform: "uppercase",
+                letterSpacing: "1px", marginBottom: "4px",
+              }}>
+                {group.label}
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "2px" }}>
+                {group.emojis.map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => setText((prev) => prev + emoji)}
+                    style={{
+                      width: "36px", height: "36px", borderRadius: "8px",
+                      border: "none", background: "transparent",
+                      fontSize: "20px", cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ padding: "12px 20px 20px", display: "flex", gap: "8px", alignItems: "center" }}>
+        <button
+          onClick={() => setShowEmoji(!showEmoji)}
+          style={{
+            width: "42px", height: "42px", borderRadius: "12px",
+            border: `1px solid ${showEmoji ? theme.primary : theme.cardBorder}`,
+            background: showEmoji ? `${theme.primary}20` : theme.cardBg,
+            fontSize: "20px", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          😊
+        </button>
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={replyTo !== null ? "Write your reply..." : "Leave a note..."}
           onKeyDown={(e) => e.key === "Enter" && send()}
+          onFocus={() => setShowEmoji(false)}
           style={{
             flex: 1, padding: "12px", borderRadius: "12px",
             border: `1px solid ${theme.cardBorder}`, background: theme.cardBg,
