@@ -2,9 +2,10 @@ import { useState } from "react";
 import { THEMES, CATEGORIES, TIERS, STAGES } from "../theme";
 import PhotoPicker from "./PhotoPicker";
 
-export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose }) {
+export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose, onDelete }) {
   const [newNote, setNewNote] = useState("");
   const [showRelease, setShowRelease] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(item.title);
   const stage = STAGES.find((s) => s.id === item.stage);
@@ -332,6 +333,52 @@ export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose
             )}
           </div>
         )}
+        {/* Delete option */}
+        <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          {!showDelete ? (
+            <button
+              onClick={() => setShowDelete(true)}
+              style={{
+                width: "100%", padding: "12px", borderRadius: "12px",
+                border: "1px solid rgba(255,60,60,0.15)", background: "transparent",
+                color: "rgba(255,100,100,0.5)", fontSize: "13px", cursor: "pointer",
+              }}
+            >
+              Delete this dream
+            </button>
+          ) : (
+            <div style={{
+              padding: "16px", borderRadius: "14px",
+              background: "rgba(255,60,60,0.08)", border: "1px solid rgba(255,60,60,0.2)",
+            }}>
+              <p style={{ color: theme.textPrimary, fontSize: "14px", margin: "0 0 4px 0" }}>
+                Delete permanently?
+              </p>
+              <p style={{ color: theme.textSecondary, fontSize: "12px", margin: "0 0 16px 0" }}>
+                This removes the star from the sky completely. Notes, photos, and all content will be gone forever.
+              </p>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  onClick={() => onDelete(item.id)}
+                  style={{
+                    flex: 1, padding: "10px", borderRadius: "10px",
+                    background: "rgba(255,60,60,0.2)", border: "1px solid rgba(255,60,60,0.3)",
+                    color: "#ff6b6b", fontSize: "13px", fontWeight: 600, cursor: "pointer",
+                  }}
+                >
+                  Delete forever
+                </button>
+                <button onClick={() => setShowDelete(false)} style={{
+                  flex: 1, padding: "10px", borderRadius: "10px",
+                  background: "transparent", border: `1px solid ${theme.cardBorder}`,
+                  color: theme.textSecondary, fontSize: "13px", cursor: "pointer",
+                }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

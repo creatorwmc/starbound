@@ -5,6 +5,7 @@ import {
   onSnapshot,
   doc,
   setDoc,
+  deleteDoc,
 } from "firebase/firestore";
 
 export function useItems() {
@@ -51,5 +52,13 @@ export function useItems() {
     }
   }, []);
 
-  return { items, loading, addItem, updateItem, newStarId };
+  const deleteItem = useCallback(async (id) => {
+    try {
+      await deleteDoc(doc(db, "items", id));
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+    }
+  }, []);
+
+  return { items, loading, addItem, updateItem, deleteItem, newStarId };
 }

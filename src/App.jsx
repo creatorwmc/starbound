@@ -29,7 +29,7 @@ export default function App() {
   const [timelineMode, setTimelineMode] = useState(false);
 
   // Firestore-backed hooks
-  const { items, loading, addItem, updateItem, newStarId } = useItems();
+  const { items, loading, addItem, updateItem, deleteItem, newStarId } = useItems();
   const { messages, sendMessage } = useMessages();
   const { triggers, plantTrigger } = useTriggers();
 
@@ -250,7 +250,8 @@ export default function App() {
       {showAddItem && <AddItemModal theme={theme} currentUser={currentUser} onSave={handleAddItem} onClose={() => setShowAddItem(false)} />}
       {selectedItem && (
         <ItemDetail item={selectedItem} theme={theme} currentUser={currentUser}
-          onUpdate={handleUpdateItem} onClose={() => setSelectedItem(null)} />
+          onUpdate={handleUpdateItem} onClose={() => setSelectedItem(null)}
+          onDelete={(id) => { deleteItem(id); setSelectedItem(null); }} />
       )}
     </div>
   );
