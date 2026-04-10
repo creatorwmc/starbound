@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import Star from "./Star";
-import FilterChip from "./FilterChip";
 import SkyTimeline from "./SkyTimeline";
 import { CATEGORIES } from "../theme";
 import { generateDateRange } from "../utils/dateUtils";
@@ -184,24 +183,51 @@ export default function NightSky({
         </div>
       </div>
 
-      {/* Filter bar */}
+      {/* Filter dropdowns */}
       <div style={{
         position: "absolute", top: "12px", left: "12px", right: "12px",
-        display: "flex", gap: "6px", flexWrap: "wrap",
+        display: "flex", gap: "8px",
         opacity: uiOpacity, pointerEvents: uiPointerEvents, transition: uiTransition, zIndex: 5,
       }}>
-        <FilterChip label="All" active={!filters.category && !filters.stage && !filters.owner} theme={theme}
-          onClick={() => setFilters({})} />
-        <FilterChip label="Ours" active={filters.owner === "shared"} theme={theme}
-          onClick={() => setFilters((f) => ({ ...f, owner: f.owner === "shared" ? null : "shared" }))} />
-        <FilterChip label="Z" active={filters.owner === "zach"} theme={theme}
-          onClick={() => setFilters((f) => ({ ...f, owner: f.owner === "zach" ? null : "zach" }))} />
-        <FilterChip label="S" active={filters.owner === "stacey"} theme={theme}
-          onClick={() => setFilters((f) => ({ ...f, owner: f.owner === "stacey" ? null : "stacey" }))} />
-        {CATEGORIES.map((cat) => (
-          <FilterChip key={cat.id} label={cat.icon} active={filters.category === cat.id} theme={theme}
-            onClick={() => setFilters((f) => ({ ...f, category: f.category === cat.id ? null : cat.id }))} />
-        ))}
+        <select
+          value={filters.owner || "all"}
+          onChange={(e) => setFilters((f) => ({ ...f, owner: e.target.value === "all" ? null : e.target.value }))}
+          style={{
+            padding: "6px 10px", borderRadius: "10px", fontSize: "12px", fontWeight: 600,
+            border: `1px solid ${filters.owner ? theme.primary : "rgba(255,255,255,0.15)"}`,
+            background: filters.owner ? `${theme.primary}25` : "rgba(0,0,0,0.4)",
+            color: theme.textPrimary, outline: "none", cursor: "pointer",
+            backdropFilter: "blur(8px)", WebkitAppearance: "none", appearance: "none",
+            backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E\")",
+            backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center",
+            paddingRight: "24px",
+          }}
+        >
+          <option value="all">Who: All</option>
+          <option value="shared">Ours</option>
+          <option value="zach">Zach's</option>
+          <option value="stacey">Stacey's</option>
+        </select>
+
+        <select
+          value={filters.category || "all"}
+          onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value === "all" ? null : e.target.value }))}
+          style={{
+            padding: "6px 10px", borderRadius: "10px", fontSize: "12px", fontWeight: 600,
+            border: `1px solid ${filters.category ? theme.primary : "rgba(255,255,255,0.15)"}`,
+            background: filters.category ? `${theme.primary}25` : "rgba(0,0,0,0.4)",
+            color: theme.textPrimary, outline: "none", cursor: "pointer",
+            backdropFilter: "blur(8px)", WebkitAppearance: "none", appearance: "none",
+            backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E\")",
+            backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center",
+            paddingRight: "24px",
+          }}
+        >
+          <option value="all">Category: All</option>
+          {CATEGORIES.map((cat) => (
+            <option key={cat.id} value={cat.id}>{cat.icon} {cat.label}</option>
+          ))}
+        </select>
       </div>
 
       {/* Remember This card */}
