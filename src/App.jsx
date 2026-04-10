@@ -29,7 +29,7 @@ export default function App() {
   const [timelineMode, setTimelineMode] = useState(false);
 
   // Firestore-backed hooks
-  const { items, loading, addItem, updateItem } = useItems();
+  const { items, loading, addItem, updateItem, newStarId } = useItems();
   const { messages, sendMessage } = useMessages();
   const { triggers, plantTrigger } = useTriggers();
 
@@ -229,6 +229,7 @@ export default function App() {
             rememberThis={rememberThis} filters={filters} setFilters={setFilters}
             immersive={immersive} onToggleImmersive={setImmersive}
             timelineMode={timelineMode} setTimelineMode={setTimelineMode}
+            newStarId={newStarId}
           />
         )}
         {currentView === "list" && (

@@ -5,12 +5,12 @@ import {
   onSnapshot,
   doc,
   setDoc,
-  updateDoc,
 } from "firebase/firestore";
 
 export function useItems() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [newStarId, setNewStarId] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -31,13 +31,25 @@ export function useItems() {
   }, []);
 
   const addItem = useCallback(async (item) => {
-    await setDoc(doc(db, "items", item.id), item);
+    try {
+      await setDoc(doc(db, "items", item.id), item);
+      setNewStarId(item.id);
+      setTimeout(() => setNewStarId(null), 2500);
+    } catch (err) {
+      console.error("Failed to add item:", err);
+      alert("Couldn't save that star — check your connection and try again.");
+    }
   }, []);
 
   const updateItem = useCallback(async (updated) => {
-    const { id, ...data } = updated;
-    await updateDoc(doc(db, "items", id), data);
+    try {
+      // Use setDoc with merge to handle both new and existing docs
+      const { id, ...data } = updated;
+      await setDoc(doc(db, "items", id), data, { merge: true });
+    } catch (err) {
+      console.error("Failed to update item:", err);
+    }
   }, []);
 
-  return { items, loading, addItem, updateItem };
+  return { items, loading, addItem, updateItem, newStarId };
 }
