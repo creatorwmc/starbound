@@ -102,28 +102,34 @@ export const GUIDED_PROMPTS = {
 
 export const OUR_APPS = [
   {
-    name: "Practice Space",
-    desc: "Spiritual practice & growth",
-    icon: "🕯️",
-    url: "https://practicespace.netlify.app",
-  },
-  {
     name: "Relationship Refuge",
     desc: "Games & date night toolkit",
     icon: "💜",
     url: "https://relationship-refuge.netlify.app",
   },
   {
-    name: "The Paige Hospital",
-    desc: "Family health & care hub",
-    icon: "🏥",
-    url: "https://paigehospital.netlify.app",
+    name: "Practice Space",
+    desc: "Spiritual practice & growth",
+    icon: "🕯️",
+    url: "https://sanctum-pwa-app.netlify.app",
+  },
+  {
+    name: "Plant Pruning Advisor",
+    desc: "AI-powered plant pruning guidance",
+    icon: "🌱",
+    url: "https://plant-pruning-advisor.netlify.app",
   },
   {
     name: "Solitaire Plus",
     desc: "Classic card games",
     icon: "🃏",
     url: "https://solitaire-plus.netlify.app",
+  },
+  {
+    name: "The Paige Hospital",
+    desc: "Family health & care hub",
+    icon: "🏥",
+    url: "https://paigehospital.netlify.app",
   },
 ];
 
