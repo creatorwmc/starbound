@@ -65,9 +65,17 @@ input[type="range"]::-moz-range-thumb {
 }
 
 html, body, #root {
+  height: 100dvh;
   height: 100%;
   width: 100%;
   overflow: hidden;
+}
+
+/* Use dvh where supported — accounts for Android 3-button nav bar */
+@supports (height: 100dvh) {
+  html, body, #root {
+    height: 100dvh;
+  }
 }
 
 body {

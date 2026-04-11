@@ -116,7 +116,7 @@ export default function App() {
 
   if (!currentUser) {
     return (
-      <div style={{ width: "100%", height: "100vh", overflow: "hidden", position: "relative" }}>
+      <div style={{ width: "100%", height: "100dvh", overflow: "hidden", position: "relative" }}>
         <FirstTimeSetup onSelect={handleUserSelect} />
       </div>
     );
@@ -126,7 +126,7 @@ export default function App() {
   if (loading) {
     return (
       <div style={{
-        width: "100%", height: "100vh", display: "flex",
+        width: "100%", height: "100dvh", display: "flex",
         alignItems: "center", justifyContent: "center",
         background: theme.bg,
       }}>
@@ -149,7 +149,7 @@ export default function App() {
 
   return (
     <div style={{
-      width: "100%", height: "100vh", overflow: "hidden", position: "relative",
+      width: "100%", height: "100dvh", overflow: "hidden", position: "relative",
       background: theme.bg, color: theme.textPrimary,
     }}>
       {/* Top bar */}
@@ -231,6 +231,7 @@ export default function App() {
         top: immersive ? 0 : "56px",
         bottom: 0, left: 0, right: 0,
         overflow: "auto", transition: "top 0.6s ease",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}>
         {currentView === "sky" && (
           <NightSky
