@@ -101,6 +101,32 @@ export default function SettingsView({ theme, currentUser, onSwitchUser }) {
         ))}
       </div>
 
+      {/* Share app */}
+      <button
+        onClick={async () => {
+          const shareData = {
+            title: "Starbound",
+            text: "Dreams we're building together",
+            url: "https://starbound-app.netlify.app",
+          };
+          if (navigator.share) {
+            try { await navigator.share(shareData); } catch {}
+          } else {
+            await navigator.clipboard.writeText(shareData.url);
+            alert("Link copied to clipboard!");
+          }
+        }}
+        style={{
+          width: "100%", padding: "14px", borderRadius: "14px",
+          background: theme.cardBg, border: `1px solid ${theme.cardBorder}`,
+          color: theme.textPrimary, fontSize: "14px", cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+          marginBottom: "12px",
+        }}
+      >
+        <span style={{ fontSize: "18px" }}>🔗</span> Share Starbound
+      </button>
+
       {/* Switch user */}
       <button
         onClick={onSwitchUser}
