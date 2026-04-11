@@ -78,7 +78,7 @@ export default function SettingsView({ theme, currentUser, onSwitchUser }) {
         {OUR_APPS.map((app) => (
           <button
             key={app.name}
-            onClick={() => window.open(app.url, '_blank', 'noopener,noreferrer')}
+            onClick={() => { window.location.href = app.url; }}
             style={{
               display: "flex", alignItems: "center", gap: "14px",
               padding: "14px 16px", borderRadius: "14px",
