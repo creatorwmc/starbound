@@ -1,6 +1,7 @@
 {
   "name": "Starbound",
   "short_name": "Starbound",
+  "id": "/",
   "description": "A cooperative bucket list experience — dreams we're building together",
   "start_url": "/",
   "display": "standalone",
