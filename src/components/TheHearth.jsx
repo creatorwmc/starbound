@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { THEMES } from "../theme";
-import { storage } from "../firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { resizeImage } from "../utils/resizeImage";
+import { imageToDataUrl } from "../utils/resizeImage";
 
 export default function TheHearth({ messages, theme, currentUser, onSend }) {
   const [text, setText] = useState("");
@@ -25,16 +23,11 @@ export default function TheHearth({ messages, theme, currentUser, onSend }) {
     setUploading(true);
     setPhotoError(null);
     try {
-      const resized = await resizeImage(file, 1200, 0.8);
-      const timestamp = Date.now();
-      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
-      const storageRef = ref(storage, `hearth/${timestamp}_${safeName}`);
-      await uploadBytes(storageRef, resized);
-      const url = await getDownloadURL(storageRef);
-      setPendingPhoto(url);
+      const dataUrl = await imageToDataUrl(file, 800, 0.6);
+      setPendingPhoto(dataUrl);
     } catch (err) {
-      console.error("Photo upload error:", err);
-      setPhotoError("Photo upload failed — try again");
+      console.error("Photo error:", err);
+      setPhotoError("Couldn't process photo — try again");
     } finally {
       setUploading(false);
     }

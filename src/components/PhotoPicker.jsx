@@ -1,9 +1,7 @@
 import { useRef, useState } from "react";
-import { storage } from "../firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { resizeImage } from "../utils/resizeImage";
+import { imageToDataUrl } from "../utils/resizeImage";
 
-export default function PhotoPicker({ theme, storagePath, onPhoto }) {
+export default function PhotoPicker({ theme, onPhoto }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const cameraRef = useRef(null);
@@ -14,16 +12,11 @@ export default function PhotoPicker({ theme, storagePath, onPhoto }) {
     setUploading(true);
     setError(null);
     try {
-      const resized = await resizeImage(file, 1200, 0.8);
-      const timestamp = Date.now();
-      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
-      const storageRef = ref(storage, `${storagePath}/${timestamp}_${safeName}`);
-      await uploadBytes(storageRef, resized);
-      const url = await getDownloadURL(storageRef);
-      onPhoto(url);
+      const dataUrl = await imageToDataUrl(file, 800, 0.6);
+      onPhoto(dataUrl);
     } catch (err) {
-      console.error("Photo upload error:", err);
-      setError("Upload failed — check your connection and try again");
+      console.error("Photo error:", err);
+      setError("Couldn't process photo — try again");
     } finally {
       setUploading(false);
     }

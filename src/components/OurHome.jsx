@@ -62,7 +62,6 @@ export default function OurHome({ theme, currentUser }) {
 
         <PhotoPicker
           theme={theme}
-          storagePath={`home/${selectedArea}`}
           onPhoto={async (url) => {
             await addDoc(collection(db, "homePhotos"), {
               areaId: selectedArea,

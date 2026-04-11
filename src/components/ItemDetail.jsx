@@ -299,7 +299,6 @@ export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose
 
           <PhotoPicker
             theme={theme}
-            storagePath={`items/${item.id}/photos`}
             onPhoto={(url) => {
               const newMedia = {
                 type: "photo",

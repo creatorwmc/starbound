@@ -1,7 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { storage } from "../firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { resizeImage } from "../utils/resizeImage";
+import { imageToDataUrl } from "../utils/resizeImage";
 
 export function usePhotoUpload() {
   const [uploading, setUploading] = useState(false);
@@ -9,21 +7,16 @@ export function usePhotoUpload() {
   const cameraRef = useRef(null);
   const galleryRef = useRef(null);
 
-  const upload = useCallback(async (file, path) => {
+  const upload = useCallback(async (file) => {
     if (!file) return null;
     setUploading(true);
     setError(null);
     try {
-      const resized = await resizeImage(file, 1200, 0.8);
-      const timestamp = Date.now();
-      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
-      const storageRef = ref(storage, `${path}/${timestamp}_${safeName}`);
-      await uploadBytes(storageRef, resized);
-      const url = await getDownloadURL(storageRef);
-      return url;
+      const dataUrl = await imageToDataUrl(file, 800, 0.6);
+      return dataUrl;
     } catch (err) {
-      console.error("Photo upload error:", err);
-      setError("Upload failed — check your connection and try again");
+      console.error("Photo error:", err);
+      setError("Couldn't process photo — try again");
       return null;
     } finally {
       setUploading(false);

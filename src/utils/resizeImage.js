@@ -1,4 +1,4 @@
-export function resizeImage(file, maxDimension = 1200, quality = 0.8) {
+export function imageToDataUrl(file, maxDimension = 800, quality = 0.6) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -7,10 +7,6 @@ export function resizeImage(file, maxDimension = 1200, quality = 0.8) {
       URL.revokeObjectURL(url);
 
       let { width, height } = img;
-      if (width <= maxDimension && height <= maxDimension && file.size < 500_000) {
-        resolve(file);
-        return;
-      }
 
       if (width > height) {
         if (width > maxDimension) {
@@ -30,17 +26,8 @@ export function resizeImage(file, maxDimension = 1200, quality = 0.8) {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, width, height);
 
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            resolve(new File([blob], file.name, { type: "image/jpeg" }));
-          } else {
-            resolve(file);
-          }
-        },
-        "image/jpeg",
-        quality
-      );
+      const dataUrl = canvas.toDataURL("image/jpeg", quality);
+      resolve(dataUrl);
     };
 
     img.onerror = () => {
