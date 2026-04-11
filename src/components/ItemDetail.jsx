@@ -285,13 +285,31 @@ export default function ItemDetail({ item, theme, currentUser, onUpdate, onClose
               {(item.media || []).filter((m) => m.type === "photo").map((m, i) => (
                 <div key={i} style={{
                   aspectRatio: "1", borderRadius: "10px", overflow: "hidden",
-                  border: `1px solid ${theme.cardBorder}`,
+                  border: `1px solid ${theme.cardBorder}`, position: "relative",
                 }}>
                   <img
                     src={m.url}
                     alt=""
                     style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                   />
+                  <button
+                    onClick={() => {
+                      if (!confirm("Delete this photo?")) return;
+                      const photos = (item.media || []).filter((x) => x.type === "photo");
+                      const toRemove = photos[i];
+                      const updatedMedia = (item.media || []).filter((x) => x !== toRemove);
+                      onUpdate({ ...item, media: updatedMedia });
+                    }}
+                    style={{
+                      position: "absolute", top: "4px", right: "4px",
+                      width: "24px", height: "24px", borderRadius: "50%",
+                      background: "rgba(0,0,0,0.6)", border: "none",
+                      color: "white", fontSize: "14px", cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
             </div>

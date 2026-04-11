@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, onSnapshot, addDoc } from "firebase/firestore";
+import { collection, onSnapshot, addDoc, deleteDoc, doc } from "firebase/firestore";
 import PhotoPicker from "./PhotoPicker";
 
 const AREAS = [
@@ -80,11 +80,26 @@ export default function OurHome({ theme, currentUser }) {
             {areaPhotos.map((photo) => (
               <div key={photo.id} style={{
                 aspectRatio: "1", borderRadius: "12px", overflow: "hidden",
-                border: `1px solid ${theme.cardBorder}`,
+                border: `1px solid ${theme.cardBorder}`, position: "relative",
               }}>
                 <img src={photo.url} alt="" style={{
                   width: "100%", height: "100%", objectFit: "cover", display: "block",
                 }} />
+                <button
+                  onClick={async () => {
+                    if (!confirm("Delete this photo?")) return;
+                    await deleteDoc(doc(db, "homePhotos", photo.id));
+                  }}
+                  style={{
+                    position: "absolute", top: "6px", right: "6px",
+                    width: "26px", height: "26px", borderRadius: "50%",
+                    background: "rgba(0,0,0,0.6)", border: "none",
+                    color: "white", fontSize: "14px", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  ×
+                </button>
               </div>
             ))}
           </div>
