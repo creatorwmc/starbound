@@ -1,0 +1,25 @@
+rules_version = '2';
+
+// Starbound — cooperative bucket list shared between Zach and Stacey.
+// Unlike the other ecosystem apps, Starbound's data is not user-scoped:
+// every doc (items, chatroom, constellations, triggers, homePhotos) is
+// shared between the household. So instead of `resource.data.user_id ==
+// request.auth.uid`, we restrict by an email allowlist.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isHousehold() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in [
+          'zacharyrpaige@gmail.com',
+          'staceycpaige@gmail.com'
+        ];
+    }
+
+    match /{document=**} {
+      allow read, write: if isHousehold();
+    }
+  }
+}
