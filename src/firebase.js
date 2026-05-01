@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,4 +15,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+
+export const HOUSEHOLD = {
+  "zacharyrpaige@gmail.com": "zach",
+  "staceycpaige@gmail.com": "stacey",
+};
+
+export function userKeyForEmail(email) {
+  return HOUSEHOLD[(email || "").toLowerCase()] || null;
+}
+
 export default app;

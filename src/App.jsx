@@ -1,4 +1,6 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, userKeyForEmail } from "./firebase";
 import { THEMES } from "./theme";
 import { useItems } from "./hooks/useItems";
 import { useMessages } from "./hooks/useMessages";
@@ -20,9 +22,43 @@ import AvatarCircle from "./components/AvatarCircle";
 import StaceyIntro from "./components/StaceyIntro";
 
 export default function App() {
-  const [showStaceyIntro, setShowStaceyIntro] = useState(false);
-  const [currentUser, setCurrentUser] = useState(() => {
-    try { return localStorage.getItem("starbound_user") || null; } catch { return null; }
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const key = user ? userKeyForEmail(user.email) : null;
+      setCurrentUser(key);
+      setAuthReady(true);
+    });
+    return unsubscribe;
+  }, []);
+
+  if (!authReady) {
+    return (
+      <div style={{
+        width: "100%", height: "100dvh", display: "flex",
+        alignItems: "center", justifyContent: "center",
+        background: "linear-gradient(135deg, #0c0c2e 0%, #1a0f2e 50%, #1a0c0c 100%)",
+      }} />
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div style={{ width: "100%", height: "100dvh", overflow: "hidden", position: "relative" }}>
+        <FirstTimeSetup />
+      </div>
+    );
+  }
+
+  return <AuthedApp currentUser={currentUser} />;
+}
+
+function AuthedApp({ currentUser }) {
+  const [showStaceyIntro, setShowStaceyIntro] = useState(() => {
+    if (currentUser !== "stacey") return false;
+    try { return !localStorage.getItem("starbound_stacey_intro_seen"); } catch { return false; }
   });
   const [currentView, setCurrentView] = useState("sky");
   const [showMenu, setShowMenu] = useState(false);
@@ -32,25 +68,13 @@ export default function App() {
   const [immersive, setImmersive] = useState(false);
   const [timelineMode, setTimelineMode] = useState(false);
 
-  // Firestore-backed hooks
+  // Firestore-backed hooks (only mounted after sign-in)
   const { items, loading, addItem, updateItem, deleteItem, newStarId } = useItems();
   const { messages, sendMessage } = useMessages();
   const { triggers, plantTrigger } = useTriggers();
   const { clusterPositions, newConstellation } = useConstellations(items);
 
-  const handleUserSelect = useCallback((user) => {
-    setCurrentUser(user);
-    try { localStorage.setItem("starbound_user", user); } catch {}
-    // Show intro for Stacey on first login
-    if (user === "stacey") {
-      const seen = localStorage.getItem("starbound_stacey_intro_seen");
-      if (!seen) {
-        setShowStaceyIntro(true);
-      }
-    }
-  }, []);
-
-  const theme = currentUser ? THEMES[currentUser] : null;
+  const theme = THEMES[currentUser];
 
   const activities = useMemo(() => {
     const acts = [];
@@ -113,14 +137,6 @@ export default function App() {
     setSelectedItem(updated);
     updateItem(updated).catch((err) => console.error("Failed to update item:", err));
   };
-
-  if (!currentUser) {
-    return (
-      <div style={{ width: "100%", height: "100dvh", overflow: "hidden", position: "relative" }}>
-        <FirstTimeSetup onSelect={handleUserSelect} />
-      </div>
-    );
-  }
 
   // Loading state while Firestore connects
   if (loading) {
@@ -253,9 +269,7 @@ export default function App() {
         {currentView === "home" && <OurHome theme={theme} currentUser={currentUser} />}
         {currentView === "gems" && <HiddenGems theme={theme} currentUser={currentUser} triggers={triggers} onPlant={plantTrigger} />}
         {currentView === "settings" && (
-          <SettingsView theme={theme} currentUser={currentUser}
-            onSwitchUser={() => { handleUserSelect(currentUser === "zach" ? "stacey" : "zach"); handleNavigate("sky"); }}
-          />
+          <SettingsView theme={theme} currentUser={currentUser} />
         )}
       </div>
 

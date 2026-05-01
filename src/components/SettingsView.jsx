@@ -1,7 +1,9 @@
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
 import { THEMES, OUR_APPS } from "../theme";
 import AvatarCircle from "./AvatarCircle";
 
-export default function SettingsView({ theme, currentUser, onSwitchUser }) {
+export default function SettingsView({ theme, currentUser }) {
   return (
     <div style={{ padding: "20px", maxWidth: "500px", margin: "0 auto" }}>
       <h2 style={{ color: theme.textPrimary, fontSize: "22px", fontWeight: 700, margin: "0 0 24px 0" }}>
@@ -129,16 +131,16 @@ export default function SettingsView({ theme, currentUser, onSwitchUser }) {
         <span style={{ fontSize: "18px" }}>🔗</span> Share Starbound
       </button>
 
-      {/* Switch user */}
+      {/* Sign out */}
       <button
-        onClick={onSwitchUser}
+        onClick={() => signOut(auth)}
         style={{
           width: "100%", padding: "14px", borderRadius: "14px",
           border: "1px solid rgba(255,255,255,0.08)", background: "transparent",
           color: theme.textSecondary, fontSize: "14px", cursor: "pointer",
         }}
       >
-        Switch user (set up as {currentUser === "zach" ? "Stacey" : "Zach"} instead)
+        Sign out
       </button>
 
       {/* About */}
