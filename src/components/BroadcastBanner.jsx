@@ -3,6 +3,16 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { useBroadcasts } from "../lib/broadcasts";
 
+function audienceLabel(segment) {
+  switch (segment) {
+    case "all": return "Everyone";
+    case "admins": return "Admins";
+    case "recipients": return "Recipients";
+    case "authors": return "Authors";
+    default: return segment;
+  }
+}
+
 export default function BroadcastBanner({ theme }) {
   const [user, setUser] = useState(null);
   useEffect(() => onAuthStateChanged(auth, setUser), []);
@@ -25,6 +35,9 @@ export default function BroadcastBanner({ theme }) {
             lineHeight: 1.4,
           }}
         >
+          <div style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.6, marginBottom: 4 }}>
+            Broadcast from Zach to {audienceLabel(b.segment)}
+          </div>
           {b.body}
           <button
             type="button"
