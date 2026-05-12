@@ -30,3 +30,7 @@ dist-ssr
 
 # Local Netlify folder
 .netlify
+
+# Service account credentials
+.service-accounts/
+*-firebase-adminsdk-*.json

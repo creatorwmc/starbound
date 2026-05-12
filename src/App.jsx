@@ -20,6 +20,7 @@ import AddItemModal from "./components/AddItemModal";
 import ItemDetail from "./components/ItemDetail";
 import AvatarCircle from "./components/AvatarCircle";
 import StaceyIntro from "./components/StaceyIntro";
+import BroadcastBanner from "./components/BroadcastBanner";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -249,6 +250,7 @@ function AuthedApp({ currentUser }) {
         overflow: "auto", transition: "top 0.6s ease",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}>
+        {!immersive && currentView !== "sky" && <BroadcastBanner theme={theme} />}
         {currentView === "sky" && (
           <NightSky
             items={filteredItems} theme={theme}
