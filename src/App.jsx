@@ -1,7 +1,10 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, userKeyForEmail } from "./firebase";
+import { auth, db, userKeyForEmail } from "./firebase";
 import { THEMES } from "./theme";
+import { HospitalityProvider, WelcomeMoment, createFirestoreStorage } from "./hospitality";
+
+const hospitalityStorage = createFirestoreStorage(db);
 import { useItems } from "./hooks/useItems";
 import { useMessages } from "./hooks/useMessages";
 import { useTriggers } from "./hooks/useTriggers";
@@ -24,12 +27,14 @@ import BroadcastBanner from "./components/BroadcastBanner";
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [authUid, setAuthUid] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       const key = user ? userKeyForEmail(user.email) : null;
       setCurrentUser(key);
+      setAuthUid(user?.uid || null);
       setAuthReady(true);
     });
     return unsubscribe;
@@ -53,10 +58,10 @@ export default function App() {
     );
   }
 
-  return <AuthedApp currentUser={currentUser} />;
+  return <AuthedApp currentUser={currentUser} uid={authUid} />;
 }
 
-function AuthedApp({ currentUser }) {
+function AuthedApp({ currentUser, uid }) {
   const [showStaceyIntro, setShowStaceyIntro] = useState(() => {
     if (currentUser !== "stacey") return false;
     try { return !localStorage.getItem("starbound_stacey_intro_seen"); } catch { return false; }
@@ -165,6 +170,13 @@ function AuthedApp({ currentUser }) {
   }
 
   return (
+    <HospitalityProvider
+      appId="starbound"
+      uid={uid}
+      storage={hospitalityStorage}
+      WelcomeMoment={WelcomeMoment}
+      welcomeTourId="starbound-main"
+    >
     <div style={{
       width: "100%", height: "100dvh", overflow: "hidden", position: "relative",
       background: theme.bg, color: theme.textPrimary,
@@ -180,6 +192,7 @@ function AuthedApp({ currentUser }) {
         transition: "opacity 0.6s ease",
       }}>
         <button
+          data-hospitality="menu"
           onClick={() => setShowMenu(true)}
           style={{
             background: "rgba(255,255,255,0.08)", border: "none",
@@ -194,6 +207,7 @@ function AuthedApp({ currentUser }) {
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           {currentView === "sky" && !timelineMode && (
             <button
+              data-hospitality="immersive"
               onClick={() => setImmersive(true)}
               style={{
                 width: "32px", height: "32px", borderRadius: "50%",
@@ -217,6 +231,7 @@ function AuthedApp({ currentUser }) {
 
           {currentView === "sky" && !timelineMode && (
             <button
+              data-hospitality="timeline"
               onClick={() => setTimelineMode(true)}
               style={{
                 width: "32px", height: "32px", borderRadius: "50%",
@@ -232,6 +247,7 @@ function AuthedApp({ currentUser }) {
         </div>
 
         <div
+          data-hospitality="avatar"
           onClick={() => handleNavigate("settings")}
           style={{
             width: "40px", height: "40px",
@@ -290,5 +306,6 @@ function AuthedApp({ currentUser }) {
         }} />
       )}
     </div>
+    </HospitalityProvider>
   );
 }

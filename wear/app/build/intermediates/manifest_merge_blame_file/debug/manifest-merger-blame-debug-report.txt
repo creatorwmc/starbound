@@ -1,0 +1,230 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.starbound.wear"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="30"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-feature android:name="android.hardware.type.watch" />
+11-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:4:5-64
+11-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:4:19-61
+12
+13    <uses-permission android:name="android.permission.INTERNET" />
+13-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:6:5-67
+13-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:6:22-64
+14    <uses-permission android:name="android.permission.WAKE_LOCK" />
+14-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:7:5-68
+14-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:7:22-65
+15    <uses-permission android:name="android.permission.VIBRATE" />
+15-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:8:5-66
+15-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:8:22-63
+16
+17    <!-- Although the *SdkVersion is captured in gradle build files, this is required for non gradle builds -->
+18    <!-- <uses-sdk android:minSdkVersion="14" /> -->
+19    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+19-->[com.google.firebase:firebase-firestore:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\657d2320046bd6a4a734c97f3d664434\transformed\firebase-firestore-24.10.0\AndroidManifest.xml:10:5-79
+19-->[com.google.firebase:firebase-firestore:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\657d2320046bd6a4a734c97f3d664434\transformed\firebase-firestore-24.10.0\AndroidManifest.xml:10:22-76
+20
+21    <permission
+21-->[androidx.core:core:1.10.0] C:\Users\zacha\.gradle\caches\transforms-3\0f5a969be1346671b590f982bba71e96\transformed\core-1.10.0\AndroidManifest.xml:22:5-24:47
+22        android:name="com.starbound.wear.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+22-->[androidx.core:core:1.10.0] C:\Users\zacha\.gradle\caches\transforms-3\0f5a969be1346671b590f982bba71e96\transformed\core-1.10.0\AndroidManifest.xml:23:9-81
+23        android:protectionLevel="signature" />
+23-->[androidx.core:core:1.10.0] C:\Users\zacha\.gradle\caches\transforms-3\0f5a969be1346671b590f982bba71e96\transformed\core-1.10.0\AndroidManifest.xml:24:9-44
+24
+25    <uses-permission android:name="com.starbound.wear.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+25-->[androidx.core:core:1.10.0] C:\Users\zacha\.gradle\caches\transforms-3\0f5a969be1346671b590f982bba71e96\transformed\core-1.10.0\AndroidManifest.xml:26:5-97
+25-->[androidx.core:core:1.10.0] C:\Users\zacha\.gradle\caches\transforms-3\0f5a969be1346671b590f982bba71e96\transformed\core-1.10.0\AndroidManifest.xml:26:22-94
+26
+27    <application
+27-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:10:5-32:19
+28        android:allowBackup="true"
+28-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:11:9-35
+29        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+29-->[androidx.core:core:1.10.0] C:\Users\zacha\.gradle\caches\transforms-3\0f5a969be1346671b590f982bba71e96\transformed\core-1.10.0\AndroidManifest.xml:28:18-86
+30        android:debuggable="true"
+31        android:extractNativeLibs="false"
+32        android:icon="@mipmap/ic_launcher"
+32-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:12:9-43
+33        android:label="@string/app_name"
+33-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:13:9-41
+34        android:supportsRtl="true"
+34-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:14:9-35
+35        android:theme="@android:style/Theme.DeviceDefault" >
+35-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:15:9-59
+36        <uses-library
+36-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:17:9-19:39
+37            android:name="com.google.android.wearable"
+37-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:18:13-55
+38            android:required="true" />
+38-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:19:13-36
+39
+40        <activity
+40-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:21:9-30:20
+41            android:name="com.starbound.wear.presentation.MainActivity"
+41-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:22:13-54
+42            android:exported="true"
+42-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:23:13-36
+43            android:taskAffinity=""
+43-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:24:13-36
+44            android:theme="@android:style/Theme.DeviceDefault" >
+44-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:25:13-63
+45            <intent-filter>
+45-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:26:13-29:29
+46                <action android:name="android.intent.action.MAIN" />
+46-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:27:17-69
+46-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:27:25-66
+47
+48                <category android:name="android.intent.category.LAUNCHER" />
+48-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:28:17-77
+48-->C:\Users\zacha\starbound\wear\app\src\main\AndroidManifest.xml:28:27-74
+49            </intent-filter>
+50        </activity>
+51
+52        <provider
+52-->[androidx.emoji2:emoji2:1.4.0] C:\Users\zacha\.gradle\caches\transforms-3\71ad0d2eeb524baf94579e445c632554\transformed\emoji2-1.4.0\AndroidManifest.xml:24:9-32:20
+53            android:name="androidx.startup.InitializationProvider"
+53-->[androidx.emoji2:emoji2:1.4.0] C:\Users\zacha\.gradle\caches\transforms-3\71ad0d2eeb524baf94579e445c632554\transformed\emoji2-1.4.0\AndroidManifest.xml:25:13-67
+54            android:authorities="com.starbound.wear.androidx-startup"
+54-->[androidx.emoji2:emoji2:1.4.0] C:\Users\zacha\.gradle\caches\transforms-3\71ad0d2eeb524baf94579e445c632554\transformed\emoji2-1.4.0\AndroidManifest.xml:26:13-68
+55            android:exported="false" >
+55-->[androidx.emoji2:emoji2:1.4.0] C:\Users\zacha\.gradle\caches\transforms-3\71ad0d2eeb524baf94579e445c632554\transformed\emoji2-1.4.0\AndroidManifest.xml:27:13-37
+56            <meta-data
+56-->[androidx.emoji2:emoji2:1.4.0] C:\Users\zacha\.gradle\caches\transforms-3\71ad0d2eeb524baf94579e445c632554\transformed\emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
+57                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+57-->[androidx.emoji2:emoji2:1.4.0] C:\Users\zacha\.gradle\caches\transforms-3\71ad0d2eeb524baf94579e445c632554\transformed\emoji2-1.4.0\AndroidManifest.xml:30:17-75
+58                android:value="androidx.startup" />
+58-->[androidx.emoji2:emoji2:1.4.0] C:\Users\zacha\.gradle\caches\transforms-3\71ad0d2eeb524baf94579e445c632554\transformed\emoji2-1.4.0\AndroidManifest.xml:31:17-49
+59            <meta-data
+59-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\zacha\.gradle\caches\transforms-3\a588f669748de7ab0fb0be528b6a0c9f\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+60                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+60-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\zacha\.gradle\caches\transforms-3\a588f669748de7ab0fb0be528b6a0c9f\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+61                android:value="androidx.startup" />
+61-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\zacha\.gradle\caches\transforms-3\a588f669748de7ab0fb0be528b6a0c9f\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+62            <meta-data
+62-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+63                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+63-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+64                android:value="androidx.startup" />
+64-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+65        </provider>
+66
+67        <service
+67-->[com.google.firebase:firebase-firestore-ktx:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\a0de3aa96c7bdcc8df2b24c3fda7d135\transformed\firebase-firestore-ktx-24.10.0\AndroidManifest.xml:9:9-15:19
+68            android:name="com.google.firebase.components.ComponentDiscoveryService"
+68-->[com.google.firebase:firebase-firestore-ktx:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\a0de3aa96c7bdcc8df2b24c3fda7d135\transformed\firebase-firestore-ktx-24.10.0\AndroidManifest.xml:10:13-84
+69            android:directBootAware="true"
+69-->[com.google.firebase:firebase-common:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\bbb51c99478ec511e740b905c86a42e8\transformed\firebase-common-20.4.2\AndroidManifest.xml:32:13-43
+70            android:exported="false" >
+70-->[com.google.firebase:firebase-firestore-ktx:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\a0de3aa96c7bdcc8df2b24c3fda7d135\transformed\firebase-firestore-ktx-24.10.0\AndroidManifest.xml:11:13-37
+71            <meta-data
+71-->[com.google.firebase:firebase-firestore-ktx:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\a0de3aa96c7bdcc8df2b24c3fda7d135\transformed\firebase-firestore-ktx-24.10.0\AndroidManifest.xml:12:13-14:85
+72                android:name="com.google.firebase.components:com.google.firebase.firestore.ktx.FirebaseFirestoreLegacyRegistrar"
+72-->[com.google.firebase:firebase-firestore-ktx:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\a0de3aa96c7bdcc8df2b24c3fda7d135\transformed\firebase-firestore-ktx-24.10.0\AndroidManifest.xml:13:17-129
+73                android:value="com.google.firebase.components.ComponentRegistrar" />
+73-->[com.google.firebase:firebase-firestore-ktx:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\a0de3aa96c7bdcc8df2b24c3fda7d135\transformed\firebase-firestore-ktx-24.10.0\AndroidManifest.xml:14:17-82
+74            <meta-data
+74-->[com.google.firebase:firebase-firestore:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\657d2320046bd6a4a734c97f3d664434\transformed\firebase-firestore-24.10.0\AndroidManifest.xml:17:13-19:85
+75                android:name="com.google.firebase.components:com.google.firebase.firestore.FirebaseFirestoreKtxRegistrar"
+75-->[com.google.firebase:firebase-firestore:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\657d2320046bd6a4a734c97f3d664434\transformed\firebase-firestore-24.10.0\AndroidManifest.xml:18:17-122
+76                android:value="com.google.firebase.components.ComponentRegistrar" />
+76-->[com.google.firebase:firebase-firestore:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\657d2320046bd6a4a734c97f3d664434\transformed\firebase-firestore-24.10.0\AndroidManifest.xml:19:17-82
+77            <meta-data
+77-->[com.google.firebase:firebase-firestore:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\657d2320046bd6a4a734c97f3d664434\transformed\firebase-firestore-24.10.0\AndroidManifest.xml:20:13-22:85
+78                android:name="com.google.firebase.components:com.google.firebase.firestore.FirestoreRegistrar"
+78-->[com.google.firebase:firebase-firestore:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\657d2320046bd6a4a734c97f3d664434\transformed\firebase-firestore-24.10.0\AndroidManifest.xml:21:17-111
+79                android:value="com.google.firebase.components.ComponentRegistrar" />
+79-->[com.google.firebase:firebase-firestore:24.10.0] C:\Users\zacha\.gradle\caches\transforms-3\657d2320046bd6a4a734c97f3d664434\transformed\firebase-firestore-24.10.0\AndroidManifest.xml:22:17-82
+80            <meta-data
+80-->[com.google.firebase:firebase-common-ktx:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\204b192e63fb1eb26702ed9cfcd788c9\transformed\firebase-common-ktx-20.4.2\AndroidManifest.xml:12:13-14:85
+81                android:name="com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonLegacyRegistrar"
+81-->[com.google.firebase:firebase-common-ktx:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\204b192e63fb1eb26702ed9cfcd788c9\transformed\firebase-common-ktx-20.4.2\AndroidManifest.xml:13:17-116
+82                android:value="com.google.firebase.components.ComponentRegistrar" />
+82-->[com.google.firebase:firebase-common-ktx:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\204b192e63fb1eb26702ed9cfcd788c9\transformed\firebase-common-ktx-20.4.2\AndroidManifest.xml:14:17-82
+83            <meta-data
+83-->[com.google.firebase:firebase-common:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\bbb51c99478ec511e740b905c86a42e8\transformed\firebase-common-20.4.2\AndroidManifest.xml:35:13-37:85
+84                android:name="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar"
+84-->[com.google.firebase:firebase-common:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\bbb51c99478ec511e740b905c86a42e8\transformed\firebase-common-20.4.2\AndroidManifest.xml:36:17-109
+85                android:value="com.google.firebase.components.ComponentRegistrar" />
+85-->[com.google.firebase:firebase-common:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\bbb51c99478ec511e740b905c86a42e8\transformed\firebase-common-20.4.2\AndroidManifest.xml:37:17-82
+86        </service>
+87
+88        <provider
+88-->[com.google.firebase:firebase-common:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\bbb51c99478ec511e740b905c86a42e8\transformed\firebase-common-20.4.2\AndroidManifest.xml:23:9-28:39
+89            android:name="com.google.firebase.provider.FirebaseInitProvider"
+89-->[com.google.firebase:firebase-common:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\bbb51c99478ec511e740b905c86a42e8\transformed\firebase-common-20.4.2\AndroidManifest.xml:24:13-77
+90            android:authorities="com.starbound.wear.firebaseinitprovider"
+90-->[com.google.firebase:firebase-common:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\bbb51c99478ec511e740b905c86a42e8\transformed\firebase-common-20.4.2\AndroidManifest.xml:25:13-72
+91            android:directBootAware="true"
+91-->[com.google.firebase:firebase-common:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\bbb51c99478ec511e740b905c86a42e8\transformed\firebase-common-20.4.2\AndroidManifest.xml:26:13-43
+92            android:exported="false"
+92-->[com.google.firebase:firebase-common:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\bbb51c99478ec511e740b905c86a42e8\transformed\firebase-common-20.4.2\AndroidManifest.xml:27:13-37
+93            android:initOrder="100" />
+93-->[com.google.firebase:firebase-common:20.4.2] C:\Users\zacha\.gradle\caches\transforms-3\bbb51c99478ec511e740b905c86a42e8\transformed\firebase-common-20.4.2\AndroidManifest.xml:28:13-36
+94
+95        <activity
+95-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\zacha\.gradle\caches\transforms-3\d02ecff30f5f8bd56ac99b299f0c71ea\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:9-22:45
+96            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+96-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\zacha\.gradle\caches\transforms-3\d02ecff30f5f8bd56ac99b299f0c71ea\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:19-85
+97            android:exported="false"
+97-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\zacha\.gradle\caches\transforms-3\d02ecff30f5f8bd56ac99b299f0c71ea\transformed\play-services-base-18.0.1\AndroidManifest.xml:22:19-43
+98            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+98-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\zacha\.gradle\caches\transforms-3\d02ecff30f5f8bd56ac99b299f0c71ea\transformed\play-services-base-18.0.1\AndroidManifest.xml:21:19-78
+99
+100        <meta-data
+100-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\zacha\.gradle\caches\transforms-3\0ea9946290be45508748cc48ca2dc132\transformed\play-services-basement-18.1.0\AndroidManifest.xml:21:9-23:69
+101            android:name="com.google.android.gms.version"
+101-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\zacha\.gradle\caches\transforms-3\0ea9946290be45508748cc48ca2dc132\transformed\play-services-basement-18.1.0\AndroidManifest.xml:22:13-58
+102            android:value="@integer/google_play_services_version" />
+102-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\zacha\.gradle\caches\transforms-3\0ea9946290be45508748cc48ca2dc132\transformed\play-services-basement-18.1.0\AndroidManifest.xml:23:13-66
+103
+104        <activity
+104-->[androidx.compose.ui:ui-tooling-android:1.5.4] C:\Users\zacha\.gradle\caches\transforms-3\a9b0fbab33704f9671a96718b9ec3849\transformed\ui-tooling-release\AndroidManifest.xml:23:9-25:39
+105            android:name="androidx.compose.ui.tooling.PreviewActivity"
+105-->[androidx.compose.ui:ui-tooling-android:1.5.4] C:\Users\zacha\.gradle\caches\transforms-3\a9b0fbab33704f9671a96718b9ec3849\transformed\ui-tooling-release\AndroidManifest.xml:24:13-71
+106            android:exported="true" />
+106-->[androidx.compose.ui:ui-tooling-android:1.5.4] C:\Users\zacha\.gradle\caches\transforms-3\a9b0fbab33704f9671a96718b9ec3849\transformed\ui-tooling-release\AndroidManifest.xml:25:13-36
+107
+108        <receiver
+108-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+109            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+109-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+110            android:directBootAware="false"
+110-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+111            android:enabled="true"
+111-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+112            android:exported="true"
+112-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+113            android:permission="android.permission.DUMP" >
+113-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+114            <intent-filter>
+114-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+115                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+115-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+115-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+116            </intent-filter>
+117            <intent-filter>
+117-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+118                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+118-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+118-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+119            </intent-filter>
+120            <intent-filter>
+120-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+121                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+121-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+121-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+122            </intent-filter>
+123            <intent-filter>
+123-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+124                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+124-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+124-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\zacha\.gradle\caches\transforms-3\b6e01612e88a86244eac0a541656e00c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+125            </intent-filter>
+126        </receiver>
+127    </application>
+128
+129</manifest>

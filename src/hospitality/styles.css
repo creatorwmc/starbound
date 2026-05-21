@@ -1,0 +1,244 @@
+/* hospitality/styles.css
+ *
+ * Themed via --hospitality-* CSS variables. Each app sets these to match
+ * its own palette below. The component styles read only the --hospitality-*
+ * variables so the module stays portable. */
+
+:root {
+  --hospitality-accent:        #a29bfe;
+  --hospitality-accent-soft:   rgba(162,155,254,0.18);
+  --hospitality-accent-glow:   rgba(162,155,254,0.45);
+  --hospitality-card-bg:       #1a0f2e;
+  --hospitality-card-fg:       #f0edff;
+  --hospitality-border:        #3a2d5e;
+  --hospitality-pulse:         rgba(162,155,254,0.55);
+  --hospitality-popover-bg:    #1a0f2e;
+  --hospitality-popover-fg:    #f0edff;
+  --hospitality-popover-dim:   #b8b0d9;
+  --hospitality-overlay:       radial-gradient(circle at 50% 40%, rgba(12,12,46,0.92), rgba(0,0,0,0.85));
+}
+
+/* --- WelcomeMoment --- */
+
+.hospitality-welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--hospitality-overlay);
+}
+
+.hospitality-welcome-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 32px 28px 28px;
+  border-radius: 16px;
+  background: var(--hospitality-card-bg);
+  color: var(--hospitality-card-fg);
+  border: 1px solid var(--hospitality-border);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.5),
+    0 0 0 1px var(--hospitality-accent-soft),
+    0 0 60px -20px var(--hospitality-accent-glow);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.hospitality-welcome-glyph {
+  text-align: center;
+  font-size: 32px;
+  color: var(--hospitality-accent);
+  margin-bottom: 14px;
+  letter-spacing: 0.1em;
+}
+
+.hospitality-welcome-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 400;
+  margin: 0 0 12px;
+  color: var(--hospitality-card-fg);
+  letter-spacing: 0.01em;
+}
+
+.hospitality-welcome-body {
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--hospitality-popover-dim);
+  margin: 0 0 24px;
+}
+
+.hospitality-welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hospitality-welcome-accept,
+.hospitality-welcome-decline {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.hospitality-welcome-accept {
+  background: var(--hospitality-accent-soft);
+  color: var(--hospitality-accent);
+  border: 1px solid var(--hospitality-accent-glow);
+}
+
+.hospitality-welcome-accept:hover {
+  background: var(--hospitality-accent-glow);
+}
+
+.hospitality-welcome-decline {
+  background: transparent;
+  color: var(--hospitality-popover-dim);
+  border: 1px solid var(--hospitality-border);
+}
+
+.hospitality-welcome-decline:hover {
+  color: var(--hospitality-card-fg);
+}
+
+/* --- Coach-mark pulse --- */
+
+.hospitality-coachmark {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.hospitality-coachmark-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--hospitality-accent);
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--hospitality-accent-glow);
+}
+
+.hospitality-coachmark-pulse::before,
+.hospitality-coachmark-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: var(--hospitality-pulse);
+  animation: hospitality-pulse 2.4s ease-out infinite;
+}
+
+.hospitality-coachmark-pulse::after {
+  animation-delay: 1.2s;
+}
+
+@keyframes hospitality-pulse {
+  0%   { transform: scale(1);   opacity: 0.65; }
+  100% { transform: scale(2.6); opacity: 0;    }
+}
+
+.hospitality-coachmark-label {
+  font-size: 0.78rem;
+  background-color: var(--hospitality-card-bg);
+  color: var(--hospitality-card-fg);
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--hospitality-border);
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* --- Driver.js popover overrides --- */
+
+.hospitality-popover.driver-popover {
+  background-color: var(--hospitality-popover-bg);
+  color: var(--hospitality-popover-fg);
+  border: 1px solid var(--hospitality-border);
+  border-radius: 14px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px var(--hospitality-accent-soft),
+    0 0 50px -20px var(--hospitality-accent-glow);
+  max-width: 380px;
+  padding: 18px 20px 16px;
+}
+
+.hospitality-popover .driver-popover-title {
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  margin: 0 0 10px 0;
+  color: var(--hospitality-popover-fg);
+}
+
+.hospitality-popover .driver-popover-description {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--hospitality-popover-fg);
+  opacity: 0.9;
+}
+
+.hospitality-popover .driver-popover-footer {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hospitality-popover .driver-popover-progress-text {
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hospitality-popover-dim);
+  opacity: 0.7;
+}
+
+.hospitality-popover .driver-popover-navigation-btns {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.hospitality-popover .driver-popover-prev-btn,
+.hospitality-popover .driver-popover-next-btn,
+.hospitality-popover .driver-popover-close-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 1px solid var(--hospitality-border);
+  background-color: transparent;
+  color: var(--hospitality-popover-fg);
+  text-shadow: none;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.hospitality-popover .driver-popover-prev-btn:hover,
+.hospitality-popover .driver-popover-close-btn:hover {
+  border-color: var(--hospitality-accent);
+  color: var(--hospitality-accent);
+}
+
+.hospitality-popover .driver-popover-next-btn {
+  background-color: var(--hospitality-accent-soft);
+  border-color: var(--hospitality-accent-glow);
+  color: var(--hospitality-accent);
+}
+
+.hospitality-popover .driver-popover-next-btn:hover {
+  background-color: var(--hospitality-accent-glow);
+}
+
+.driver-overlay {
+  filter: none;
+}

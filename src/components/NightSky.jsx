@@ -261,6 +261,7 @@ export default function NightSky({
       {/* Add new FAB */}
       {!timelineMode && (
         <button
+          data-hospitality="add-star"
           onClick={(e) => { e.stopPropagation(); onAddNew(); }}
           style={{
             position: "absolute", bottom: "100px", right: "20px",

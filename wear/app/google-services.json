@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "501888638244",
+    "project_id": "starbound-38b21",
+    "storage_bucket": "starbound-38b21.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:501888638244:android:db3e66410457ae097927b1",
+        "android_client_info": {
+          "package_name": "com.starbound.wear"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0PE6UowYV4f35jb2-V14u5OYTrsmEEac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
