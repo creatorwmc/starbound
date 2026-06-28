@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, getRedirectResult, signOut } from "firebase/auth";
 import { auth, db, userKeyForEmail } from "./firebase";
 import { THEMES } from "./theme";
 import { HospitalityProvider, WelcomeMoment, createFirestoreStorage } from "./hospitality";
@@ -31,6 +31,16 @@ export default function App() {
   const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
+    // Pick up the result of a standalone-PWA signInWithRedirect. If the returned
+    // user isn't in the household, sign them out so they see the rejection.
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user && !userKeyForEmail(result.user.email)) {
+          signOut(auth).catch(console.error);
+        }
+      })
+      .catch((err) => console.error("redirect result error:", err));
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       const key = user ? userKeyForEmail(user.email) : null;
       setCurrentUser(key);
