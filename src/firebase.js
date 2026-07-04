@@ -7,6 +7,7 @@ import {
   indexedDBLocalPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
+  browserPopupRedirectResolver,
   GoogleAuthProvider,
 } from "firebase/auth";
 
@@ -30,6 +31,7 @@ function getOrInitAuth() {
   try {
     return initializeAuth(app, {
       persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
+      popupRedirectResolver: browserPopupRedirectResolver,
     });
   } catch {
     return getAuth(app);
