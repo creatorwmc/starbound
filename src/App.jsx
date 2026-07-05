@@ -1,6 +1,24 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { onAuthStateChanged, getRedirectResult, signOut } from "firebase/auth";
 import { auth, db, userKeyForEmail } from "./firebase";
+
+const DBG_KEY = "__starbound_auth_debug";
+function dbgLog(event, detail) {
+  try {
+    const now = new Date().toISOString().slice(11, 23);
+    const entries = JSON.parse(localStorage.getItem(DBG_KEY) || "[]");
+    entries.push({ t: now, event, detail });
+    if (entries.length > 40) entries.shift();
+    localStorage.setItem(DBG_KEY, JSON.stringify(entries));
+  } catch {}
+}
+function dbgRead() {
+  try { return JSON.parse(localStorage.getItem(DBG_KEY) || "[]"); } catch { return []; }
+}
+function dbgClear() { try { localStorage.removeItem(DBG_KEY); } catch {} }
+function isStandalone() {
+  return window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
 import { THEMES } from "./theme";
 import { HospitalityProvider, WelcomeMoment, createFirestoreStorage } from "./hospitality";
 
@@ -9,6 +27,7 @@ import { useItems } from "./hooks/useItems";
 import { useMessages } from "./hooks/useMessages";
 import { useTriggers } from "./hooks/useTriggers";
 import { useConstellations } from "./hooks/useConstellations";
+import { useSkyPrefs } from "./hooks/useSkyPrefs";
 import FirstTimeSetup from "./components/FirstTimeSetup";
 import ConstellationCelebration from "./components/ConstellationCelebration";
 import NightSky from "./components/NightSky";
@@ -25,23 +44,68 @@ import AvatarCircle from "./components/AvatarCircle";
 import StaceyIntro from "./components/StaceyIntro";
 import BroadcastBanner from "./components/BroadcastBanner";
 
+function AuthDebugPanel() {
+  const [entries, setEntries] = useState(() => dbgRead());
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    const id = setInterval(() => setEntries(dbgRead()), 500);
+    return () => clearInterval(id);
+  }, []);
+  if (collapsed) {
+    return (
+      <button onClick={() => setCollapsed(false)} style={{
+        position: "fixed", right: 8, bottom: 8, zIndex: 9999,
+        background: "rgba(0,0,0,0.7)", color: "#0f0", border: "1px solid #0f0",
+        borderRadius: 6, padding: "4px 8px", fontSize: 11, fontFamily: "monospace",
+      }}>debug ({entries.length})</button>
+    );
+  }
+  return (
+    <div style={{
+      position: "fixed", left: 8, right: 8, bottom: 8, zIndex: 9999,
+      background: "rgba(0,0,0,0.85)", color: "#0f0", border: "1px solid #0f0",
+      borderRadius: 6, padding: 8, fontSize: 10, fontFamily: "monospace",
+      maxHeight: "45vh", overflow: "auto",
+    }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
+        <strong style={{ flex: 1 }}>AUTH DEBUG ({entries.length})</strong>
+        <button onClick={() => { dbgClear(); setEntries([]); }} style={{ background: "#300", color: "#faa", border: "1px solid #f66", borderRadius: 4, padding: "2px 6px", fontSize: 10 }}>clear</button>
+        <button onClick={() => setCollapsed(true)} style={{ background: "#003", color: "#aaf", border: "1px solid #66f", borderRadius: 4, padding: "2px 6px", fontSize: 10 }}>hide</button>
+      </div>
+      {entries.map((e, i) => (
+        <div key={i} style={{ borderTop: i ? "1px dashed #030" : "none", padding: "3px 0", wordBreak: "break-all" }}>
+          <span style={{ color: "#6c6" }}>{e.t}</span> <strong>{e.event}</strong>
+          {e.detail !== undefined && <div style={{ color: "#9d9", paddingLeft: 8 }}>{JSON.stringify(e.detail)}</div>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [authUid, setAuthUid] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
+    dbgLog("mount", { standalone: isStandalone(), url: location.href, search: location.search, hash: location.hash });
     // Pick up the result of a standalone-PWA signInWithRedirect. If the returned
     // user isn't in the household, sign them out so they see the rejection.
     getRedirectResult(auth)
       .then((result) => {
+        dbgLog("getRedirectResult.then", result ? { email: result.user?.email, uid: result.user?.uid } : null);
         if (result?.user && !userKeyForEmail(result.user.email)) {
+          dbgLog("signOut(non-household)", { email: result.user.email });
           signOut(auth).catch(console.error);
         }
       })
-      .catch((err) => console.error("redirect result error:", err));
+      .catch((err) => {
+        dbgLog("getRedirectResult.catch", { code: err?.code, message: err?.message });
+        console.error("redirect result error:", err);
+      });
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      dbgLog("onAuthStateChanged", user ? { email: user.email, uid: user.uid } : null);
       const key = user ? userKeyForEmail(user.email) : null;
       setCurrentUser(key);
       setAuthUid(user?.uid || null);
@@ -64,6 +128,7 @@ export default function App() {
     return (
       <div style={{ width: "100%", height: "100dvh", overflow: "hidden", position: "relative" }}>
         <FirstTimeSetup />
+        <AuthDebugPanel />
       </div>
     );
   }
@@ -88,7 +153,8 @@ function AuthedApp({ currentUser, uid }) {
   const { items, loading, addItem, updateItem, deleteItem, newStarId } = useItems();
   const { messages, sendMessage } = useMessages();
   const { triggers, plantTrigger } = useTriggers();
-  const { clusterPositions, newConstellation } = useConstellations(items);
+  const { prefs, setConstellationMode } = useSkyPrefs();
+  const { clusterPositions, skeletons, newConstellation } = useConstellations(items, prefs.constellationMode);
 
   const theme = THEMES[currentUser];
 
@@ -286,7 +352,7 @@ function AuthedApp({ currentUser, uid }) {
             rememberThis={rememberThis} filters={filters} setFilters={setFilters}
             immersive={immersive} onToggleImmersive={setImmersive}
             timelineMode={timelineMode} setTimelineMode={setTimelineMode}
-            newStarId={newStarId} clusterPositions={clusterPositions}
+            newStarId={newStarId} clusterPositions={clusterPositions} skeletons={skeletons}
           />
         )}
         {currentView === "list" && (
@@ -297,7 +363,12 @@ function AuthedApp({ currentUser, uid }) {
         {currentView === "home" && <OurHome theme={theme} currentUser={currentUser} />}
         {currentView === "gems" && <HiddenGems theme={theme} currentUser={currentUser} triggers={triggers} onPlant={plantTrigger} />}
         {currentView === "settings" && (
-          <SettingsView theme={theme} currentUser={currentUser} />
+          <SettingsView
+            theme={theme}
+            currentUser={currentUser}
+            constellationMode={prefs.constellationMode}
+            onSetConstellationMode={setConstellationMode}
+          />
         )}
       </div>
 
@@ -308,7 +379,13 @@ function AuthedApp({ currentUser, uid }) {
           onUpdate={handleUpdateItem} onClose={() => setSelectedItem(null)}
           onDelete={(id) => { deleteItem(id); setSelectedItem(null); }} />
       )}
-      {newConstellation && <ConstellationCelebration constellation={newConstellation} theme={theme} />}
+      {newConstellation && (
+        <ConstellationCelebration
+          constellation={newConstellation}
+          theme={theme}
+          mode={prefs.constellationMode}
+        />
+      )}
       {showStaceyIntro && (
         <StaceyIntro onComplete={() => {
           setShowStaceyIntro(false);
