@@ -1,17 +1,6 @@
 import { useState } from "react";
-import { signInWithPopup, signInWithRedirect, signOut } from "firebase/auth";
+import { signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider, userKeyForEmail } from "../firebase";
-
-// Installed-PWA standalone contexts must use redirect — signInWithPopup writes
-// auth state into Chrome's regular browser storage partition, not the
-// standalone PWA's, so the session is never seen on relaunch.
-function isStandalonePWA() {
-  if (typeof window === "undefined") return false;
-  return (
-    window.matchMedia?.("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true
-  );
-}
 
 export default function FirstTimeSetup() {
   const [signingIn, setSigningIn] = useState(false);
@@ -21,11 +10,6 @@ export default function FirstTimeSetup() {
     setSigningIn(true);
     setError(null);
     try {
-      if (isStandalonePWA()) {
-        await signInWithRedirect(auth, googleProvider);
-        // Browser navigates away; result is picked up by getRedirectResult on return.
-        return;
-      }
       const result = await signInWithPopup(auth, googleProvider);
       const email = result.user?.email;
       if (!userKeyForEmail(email)) {
