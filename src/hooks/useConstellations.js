@@ -9,22 +9,33 @@ const THRESHOLD = 3;
 function isLegacyDoc(d) {
   return d.threshold !== undefined || (typeof d.id === "string" && d.id.split("-").length > 2);
 }
-const VIEWPORT_PADDING = 18;     // % from each edge — cluster center stays in this band
-const SHAPE_RADIUS_PCT = 14;     // viewport % the shape occupies (half-width)
-const EXTRA_ORBIT_PCT = 4.5;     // how far extra stars sit beyond the shape ring
+const SHAPE_RADIUS_PCT = 10;     // viewport % the shape occupies (half-width)
+const EXTRA_ORBIT_PCT = 2.5;     // how far extra stars sit beyond the shape ring
 
-// Deterministic cluster center per category — stable as items come and go, stable
-// across both phones because it only depends on category id.
-function hashCategory(category) {
-  return category.split("").reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0);
-}
+// Fixed cluster slots, in viewport %. Hand-placed rather than hashed: every
+// pair is >= 22.4 apart, so shape rings (radius 10) never touch, and all nine
+// clear the top bar (~7%) and the ground silhouette (~88%).
+//
+// Assigned by orderIndex, not by a hash of the category name. The previous
+// hash squeezed cy through `% 24`, which stacked all eight categories into a
+// 14%-tall band and collided 18 of 28 pairs — skills and creative landed 5.8%
+// apart. orderIndex is stored on the constellation doc, so placement is just
+// as stable across items coming and going and across both phones, but it can
+// actually guarantee separation.
+//
+// Nine slots covers the eight categories in theme.js. Extras orbit at
+// radius + 2.5, slightly wider than the slot gap, so a constellation with more
+// items than its shape has vertices can drift a loose star toward a neighbour.
+// That is fine — they read as stray stars, not as skeleton.
+const CLUSTER_SLOTS = [
+  [20, 24], [50, 20], [80, 26],
+  [16, 50], [47, 46], [80, 52],
+  [24, 72], [56, 70], [84, 74],
+];
 
-function clusterCenterFor(category) {
-  const h = Math.abs(hashCategory(category));
-  return {
-    cx: VIEWPORT_PADDING + (h * 13) % (100 - VIEWPORT_PADDING * 2),
-    cy: VIEWPORT_PADDING + (h * 29) % (60 - VIEWPORT_PADDING * 2) + 5, // bias above ground
-  };
+function clusterCenterFor(orderIndex) {
+  const [cx, cy] = CLUSTER_SLOTS[(orderIndex ?? 0) % CLUSTER_SLOTS.length];
+  return { cx, cy };
 }
 
 export function useConstellations(items, mode = "zodiac") {
@@ -116,7 +127,7 @@ export function useConstellations(items, mode = "zodiac") {
 
     constellations.forEach((con) => {
       const shape = getShape(mode, con.orderIndex || 0);
-      const { cx, cy } = clusterCenterFor(con.category);
+      const { cx, cy } = clusterCenterFor(con.orderIndex || 0);
       const vertexCount = shape.vertices.length;
 
       // Stars 0..N-1 snap to shape vertices.
