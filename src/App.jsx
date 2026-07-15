@@ -7,6 +7,12 @@ import { HospitalityProvider, WelcomeMoment, createFirestoreStorage } from "./ho
 const hospitalityStorage = createFirestoreStorage(db);
 import { useItems } from "./hooks/useItems";
 import { useMessages } from "./hooks/useMessages";
+import KairosBadge from "./components/KairosBadge";
+import {
+  getKairosMembership,
+  clearKairosMembershipCache,
+  readCachedMembership,
+} from "./lib/kairosHandshake";
 import { useTriggers } from "./hooks/useTriggers";
 import { useConstellations } from "./hooks/useConstellations";
 import { useSkyPrefs } from "./hooks/useSkyPrefs";
@@ -29,6 +35,7 @@ import BroadcastBanner from "./components/BroadcastBanner";
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [authUid, setAuthUid] = useState(null);
+  const [authUser, setAuthUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
@@ -36,6 +43,9 @@ export default function App() {
       const key = user ? userKeyForEmail(user.email) : null;
       setCurrentUser(key);
       setAuthUid(user?.uid || null);
+      // Retained for the Kairos handshake, which needs a live getIdToken().
+      setAuthUser(user || null);
+      if (!user) clearKairosMembershipCache();
       setAuthReady(true);
     });
     return unsubscribe;
@@ -59,10 +69,25 @@ export default function App() {
     );
   }
 
-  return <AuthedApp currentUser={currentUser} uid={authUid} />;
+  return <AuthedApp currentUser={currentUser} uid={authUid} user={authUser} />;
 }
 
-function AuthedApp({ currentUser, uid }) {
+function AuthedApp({ currentUser, uid, user }) {
+  const [kairosMembership, setKairosMembership] = useState(
+    () => readCachedMembership(user?.email)
+  );
+
+  // Golden Ticket check. Non-blocking: a non-member — or an unreachable
+  // Kairos — leaves this null and Starbound stays exactly as it is.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    getKairosMembership(user).then((m) => {
+      if (!cancelled) setKairosMembership(m);
+    });
+    return () => { cancelled = true; };
+  }, [user]);
+
   const [showStaceyIntro, setShowStaceyIntro] = useState(() => {
     if (currentUser !== "stacey") return false;
     try { return !localStorage.getItem("starbound_stacey_intro_seen"); } catch { return false; }
@@ -207,6 +232,7 @@ function AuthedApp({ currentUser, uid }) {
         </button>
 
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <KairosBadge membership={kairosMembership} theme={theme} />
           {currentView === "sky" && !timelineMode && (
             <button
               data-hospitality="immersive"
@@ -285,7 +311,15 @@ function AuthedApp({ currentUser, uid }) {
           <BucketListView items={items} theme={theme} onItemClick={(item) => setSelectedItem(item)} currentUser={currentUser} />
         )}
         {currentView === "feed" && <ActivityFeed activities={activities} theme={theme} />}
-        {currentView === "jar" && <TheHearth messages={messages} theme={theme} currentUser={currentUser} onSend={sendMessage} />}
+        {currentView === "jar" && (
+          <TheHearth
+            messages={messages}
+            theme={theme}
+            currentUser={currentUser}
+            onSend={sendMessage}
+            kairosMembership={kairosMembership}
+          />
+        )}
         {currentView === "home" && <OurHome theme={theme} currentUser={currentUser} />}
         {currentView === "gems" && <HiddenGems theme={theme} currentUser={currentUser} triggers={triggers} onPlant={plantTrigger} />}
         {currentView === "settings" && (

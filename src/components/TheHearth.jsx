@@ -1,8 +1,75 @@
 import { useState, useEffect, useRef } from "react";
 import { THEMES } from "../theme";
 import { imageToDataUrl } from "../utils/resizeImage";
+import { isKairosUser } from "../lib/kairosHandshake";
 
-export default function TheHearth({ messages, theme, currentUser, onSend }) {
+const KAIROS_URL = "https://kairos-pwa.netlify.app/";
+const KAIROS_TOGGLE_STORAGE_KEY = "starbound_hearth_kairos_toggle";
+
+// Shown to Kairos household members in place of the Hearth: their messages
+// live in the Kairos channel now. Opt-out is remembered for the session —
+// the Hearth's history is still here and still theirs.
+function KairosChannelRedirect({ theme, partnerName, onSwitch }) {
+  return (
+    <div style={{
+      display: "flex", flexDirection: "column", alignItems: "center",
+      justifyContent: "center", textAlign: "center", gap: "16px",
+      padding: "24px", height: "100%",
+    }}>
+      <div style={{ maxWidth: "320px" }}>
+        <div style={{
+          fontFamily: "'Courier New', monospace", fontSize: "10px",
+          letterSpacing: "0.14em", textTransform: "uppercase",
+          color: theme.accent, marginBottom: "10px",
+        }}>
+          ✦ Kairos Channel
+        </div>
+        <h2 style={{
+          color: theme.textPrimary, fontSize: "22px", fontWeight: 700,
+          margin: "0 0 12px 0",
+        }}>
+          Your messages are in Kairos
+        </h2>
+        <p style={{
+          color: theme.textSecondary, fontSize: "13px", lineHeight: 1.6,
+          margin: "0 0 20px 0",
+        }}>
+          You and {partnerName || "your partner"} share one household channel in
+          Kairos — with replies, reactions, and push notifications.
+        </p>
+        <a
+          href={KAIROS_URL}
+          style={{
+            display: "inline-block", padding: "12px 24px", borderRadius: "999px",
+            background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})`,
+            color: "#0d0f1a", fontSize: "14px", fontWeight: 600,
+            textDecoration: "none",
+          }}
+        >
+          Open Kairos Channel →
+        </a>
+      </div>
+      <button
+        type="button"
+        onClick={onSwitch}
+        style={{
+          background: "none", border: "none", color: theme.textSecondary,
+          fontSize: "12px", textDecoration: "underline", cursor: "pointer",
+          opacity: 0.7,
+        }}
+      >
+        Show the Hearth instead
+      </button>
+    </div>
+  );
+}
+
+export default function TheHearth({ messages, theme, currentUser, onSend, kairosMembership }) {
+  const [userChoseHearth, setUserChoseHearth] = useState(() => {
+    try {
+      return sessionStorage.getItem(KAIROS_TOGGLE_STORAGE_KEY) === "hearth";
+    } catch { return false; }
+  });
   const [text, setText] = useState("");
   const [replyTo, setReplyTo] = useState(null);
   const [showEmoji, setShowEmoji] = useState(false);
@@ -46,6 +113,22 @@ export default function TheHearth({ messages, theme, currentUser, onSend }) {
     setReplyTo(null);
     setPendingPhoto(null);
   };
+
+  // After the hooks above, so hook order stays stable across both branches.
+  if (isKairosUser(kairosMembership) && !userChoseHearth) {
+    return (
+      <KairosChannelRedirect
+        theme={theme}
+        partnerName={kairosMembership?.partnerName}
+        onSwitch={() => {
+          try {
+            sessionStorage.setItem(KAIROS_TOGGLE_STORAGE_KEY, "hearth");
+          } catch { /* ignore */ }
+          setUserChoseHearth(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
