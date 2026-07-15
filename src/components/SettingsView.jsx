@@ -4,7 +4,7 @@ import { THEMES, OUR_APPS } from "../theme";
 import AvatarCircle from "./AvatarCircle";
 import { useHospitality } from "../hospitality";
 
-export default function SettingsView({ theme, currentUser }) {
+export default function SettingsView({ theme, currentUser, constellationMode, onSetConstellationMode }) {
   const { runTour } = useHospitality();
   return (
     <div style={{ padding: "20px", maxWidth: "500px", margin: "0 auto" }}>
@@ -55,6 +55,43 @@ export default function SettingsView({ theme, currentUser }) {
           <div style={{ color: theme.textSecondary, fontSize: "12px", marginTop: "2px" }}>Hidden Gem alerts</div>
         </div>
         <span style={{ color: theme.textSecondary, fontSize: "16px" }}>→</span>
+      </div>
+
+      {/* Constellation shape */}
+      <div style={{
+        padding: "16px", borderRadius: "14px",
+        background: theme.cardBg, border: `1px solid ${theme.cardBorder}`,
+        marginBottom: "12px",
+      }}>
+        <div style={{ color: theme.textPrimary, fontSize: "15px", fontWeight: 600, marginBottom: "4px" }}>
+          Constellation Shape
+        </div>
+        <div style={{ color: theme.textSecondary, fontSize: "12px", marginBottom: "12px" }}>
+          What shape categories form once they have 3+ items
+        </div>
+        <div style={{ display: "flex", gap: "8px" }}>
+          {[
+            { id: "zodiac", label: "Zodiac" },
+            { id: "solids", label: "Euclidean Solids" },
+          ].map((opt) => {
+            const active = constellationMode === opt.id;
+            return (
+              <button
+                key={opt.id}
+                onClick={() => onSetConstellationMode?.(opt.id)}
+                style={{
+                  flex: 1, padding: "10px", borderRadius: "10px",
+                  border: `1px solid ${active ? theme.primary : "rgba(255,255,255,0.12)"}`,
+                  background: active ? `${theme.primary}25` : "rgba(0,0,0,0.2)",
+                  color: active ? theme.textPrimary : theme.textSecondary,
+                  fontSize: "13px", fontWeight: 600, cursor: "pointer",
+                }}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Guided mode default */}

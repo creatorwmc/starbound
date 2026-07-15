@@ -1,7 +1,10 @@
 import { CATEGORIES } from "../theme";
+import { getShape } from "../utils/constellationShapes";
 
-export default function ConstellationCelebration({ constellation, theme }) {
+export default function ConstellationCelebration({ constellation, theme, mode = "zodiac" }) {
   const cat = CATEGORIES.find((c) => c.id === constellation.category);
+  const shape = getShape(mode, constellation.orderIndex || 0);
+  const color = cat?.color || theme.accent;
 
   return (
     <div style={{
@@ -15,40 +18,45 @@ export default function ConstellationCelebration({ constellation, theme }) {
         textAlign: "center", padding: "32px",
         animation: "conCelebScale 4s ease forwards",
       }}>
-        {/* Burst ring */}
         <div style={{
           width: "80px", height: "80px", borderRadius: "50%",
           margin: "0 auto 20px",
-          background: `radial-gradient(circle, ${cat?.color || theme.accent}40 0%, transparent 70%)`,
+          background: `radial-gradient(circle, ${color}40 0%, transparent 70%)`,
           display: "flex", alignItems: "center", justifyContent: "center",
           animation: "conCelebPulse 1.5s ease-in-out infinite",
-          boxShadow: `0 0 40px ${cat?.color || theme.accent}50, 0 0 80px ${cat?.color || theme.accent}20`,
+          boxShadow: `0 0 40px ${color}50, 0 0 80px ${color}20`,
         }}>
           <span style={{ fontSize: "36px" }}>{cat?.icon || "✦"}</span>
         </div>
 
         <div style={{
-          color: cat?.color || theme.accent,
-          fontSize: "11px", textTransform: "uppercase",
+          color, fontSize: "11px", textTransform: "uppercase",
           letterSpacing: "4px", marginBottom: "8px",
           opacity: 0, animation: "introLineIn 0.5s ease 0.3s forwards",
         }}>
-          Constellation Unlocked
+          Constellation Formed
         </div>
 
         <div style={{
           color: theme.textPrimary, fontSize: "22px", fontWeight: 700,
-          marginBottom: "8px",
+          marginBottom: "4px",
           opacity: 0, animation: "introLineIn 0.5s ease 0.5s forwards",
+        }}>
+          {shape.name}
+        </div>
+
+        <div style={{
+          color: theme.textSecondary, fontSize: "13px", marginBottom: "10px",
+          opacity: 0, animation: "introLineIn 0.5s ease 0.65s forwards",
         }}>
           {cat?.label || constellation.category}
         </div>
 
         <div style={{
-          color: theme.textSecondary, fontSize: "13px",
-          opacity: 0, animation: "introLineIn 0.5s ease 0.7s forwards",
+          color: theme.textSecondary, fontSize: "12px", fontStyle: "italic",
+          opacity: 0, animation: "introLineIn 0.5s ease 0.8s forwards",
         }}>
-          {constellation.threshold} stars aligned — your {cat?.label?.toLowerCase() || "dreams"} are forming something beautiful
+          three stars aligned — the shape stays, forever
         </div>
       </div>
 

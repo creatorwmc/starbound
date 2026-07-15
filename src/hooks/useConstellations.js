@@ -1,105 +1,167 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { db } from "../firebase";
-import {
-  collection,
-  onSnapshot,
-  doc,
-  setDoc,
-} from "firebase/firestore";
+import { collection, onSnapshot, doc, setDoc, deleteDoc } from "firebase/firestore";
+import { getShape } from "../utils/constellationShapes";
 
-// Constellation thresholds: 3, 4, 5, 6, 7, then back to 3
-function getThreshold(constellationIndex) {
-  return 3 + (constellationIndex % 5); // cycles: 3, 4, 5, 6, 7, 3, 4, 5, 6, 7...
+const THRESHOLD = 3;
+// Old docs were `con-{category}-{N}` (3+ hyphens) and carried a `threshold` field.
+// New docs are `con-{category}` (exactly 2 hyphens) with `orderIndex`.
+function isLegacyDoc(d) {
+  return d.threshold !== undefined || (typeof d.id === "string" && d.id.split("-").length > 2);
+}
+const VIEWPORT_PADDING = 18;     // % from each edge — cluster center stays in this band
+const SHAPE_RADIUS_PCT = 14;     // viewport % the shape occupies (half-width)
+const EXTRA_ORBIT_PCT = 4.5;     // how far extra stars sit beyond the shape ring
+
+// Deterministic cluster center per category — stable as items come and go, stable
+// across both phones because it only depends on category id.
+function hashCategory(category) {
+  return category.split("").reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0);
 }
 
-export function useConstellations(items) {
+function clusterCenterFor(category) {
+  const h = Math.abs(hashCategory(category));
+  return {
+    cx: VIEWPORT_PADDING + (h * 13) % (100 - VIEWPORT_PADDING * 2),
+    cy: VIEWPORT_PADDING + (h * 29) % (60 - VIEWPORT_PADDING * 2) + 5, // bias above ground
+  };
+}
+
+export function useConstellations(items, mode = "zodiac") {
   const [constellations, setConstellations] = useState([]);
   const [newConstellation, setNewConstellation] = useState(null);
+  const wipedRef = useRef(false);
 
-  // Load existing constellations from Firestore
   useEffect(() => {
     const unsubscribe = onSnapshot(
       collection(db, "constellations"),
       (snapshot) => {
-        const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
-        setConstellations(data);
+        const all = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
+        // One-shot wipe of legacy-format docs the first time we see them.
+        if (!wipedRef.current) {
+          const legacy = all.filter(isLegacyDoc);
+          if (legacy.length > 0) {
+            wipedRef.current = true;
+            legacy.forEach((d) => {
+              deleteDoc(doc(db, "constellations", d.id)).catch(console.error);
+            });
+          } else {
+            wipedRef.current = true;
+          }
+        }
+        setConstellations(all.filter((d) => !isLegacyDoc(d)));
       },
-      (error) => {
-        console.error("Firestore constellations error:", error);
-      }
+      (err) => console.error("constellations snapshot error:", err),
     );
     return unsubscribe;
   }, []);
 
-  // Detect new constellations based on completed items
+  // Re-evaluate every time items change. One constellation per category. First
+  // category to hit THRESHOLD gets orderIndex=0, next gets 1, etc. Extra items
+  // beyond the first 3 attach to the same constellation.
   const checkConstellations = useCallback(() => {
-    // Group completed items by category
-    const doneByCategory = {};
-    items.filter((i) => i.stage === "done").forEach((item) => {
-      if (!doneByCategory[item.category]) doneByCategory[item.category] = [];
-      doneByCategory[item.category].push(item.id);
+    const byCategory = {};
+    items.forEach((item) => {
+      if (!byCategory[item.category]) byCategory[item.category] = [];
+      byCategory[item.category].push(item.id);
     });
 
-    // For each category, check if we've hit a new threshold
-    Object.entries(doneByCategory).forEach(([category, itemIds]) => {
-      const existingInCategory = constellations.filter((c) => c.category === category);
-      const alreadyClaimed = new Set(existingInCategory.flatMap((c) => c.itemIds));
-      const unclaimed = itemIds.filter((id) => !alreadyClaimed.has(id));
-      const threshold = getThreshold(existingInCategory.length);
+    // Track orderIndex locally so multiple new constellations formed in the same
+    // pass each get a distinct index instead of all colliding on constellations.length.
+    let nextOrderIndex = constellations.reduce(
+      (max, c) => Math.max(max, (c.orderIndex ?? -1) + 1),
+      0,
+    );
 
-      if (unclaimed.length >= threshold) {
-        const constellationItemIds = unclaimed.slice(0, threshold);
-        const conId = `con-${category}-${existingInCategory.length + 1}`;
+    Object.entries(byCategory).forEach(([category, itemIds]) => {
+      const existing = constellations.find((c) => c.category === category);
 
-        // Check if we already created this one
-        if (constellations.find((c) => c.id === conId)) return;
-
+      if (!existing) {
+        if (itemIds.length < THRESHOLD) return;
+        const orderIndex = nextOrderIndex++;
+        const conId = `con-${category}`;
         const newCon = {
           id: conId,
           category,
-          itemIds: constellationItemIds,
-          threshold,
+          itemIds: [...itemIds],
+          orderIndex,
           formedAt: new Date().toISOString(),
-          number: existingInCategory.length + 1,
         };
-
-        // Save to Firestore
         setDoc(doc(db, "constellations", conId), newCon).catch(console.error);
-
-        // Trigger celebration
         setNewConstellation(newCon);
         setTimeout(() => setNewConstellation(null), 4000);
+        return;
+      }
+
+      // Append any items not yet tracked. Don't unset removed items here — a
+      // deleted item just becomes an absent star; the constellation's identity
+      // stays intact (per spec: "stays even if the bucket list item is completed").
+      const known = new Set(existing.itemIds);
+      const additions = itemIds.filter((id) => !known.has(id));
+      if (additions.length > 0) {
+        const updated = { ...existing, itemIds: [...existing.itemIds, ...additions] };
+        setDoc(doc(db, "constellations", existing.id), updated).catch(console.error);
       }
     });
   }, [items, constellations]);
 
-  // Check whenever items change
   useEffect(() => {
     checkConstellations();
   }, [checkConstellations]);
 
-  // Build a map of itemId -> cluster position for constellation members
-  const clusterPositions = useMemo(() => {
+  // Resolve positions + shape skeletons for the current mode.
+  const { clusterPositions, skeletons } = useMemo(() => {
     const positions = {};
-    constellations.forEach((con) => {
-      // Generate a cluster center from the constellation ID
-      const hash = con.id.split("").reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0);
-      const cx = 15 + (Math.abs(hash * 13) % 70);
-      const cy = 10 + (Math.abs(hash * 29) % 60);
+    const skeletonList = [];
 
-      // Place stars in a tight cluster around the center
-      con.itemIds.forEach((itemId, i) => {
-        const angle = (i / con.itemIds.length) * Math.PI * 2;
-        const radius = 3 + (i % 2) * 1.5; // 3-4.5% spread
+    constellations.forEach((con) => {
+      const shape = getShape(mode, con.orderIndex || 0);
+      const { cx, cy } = clusterCenterFor(con.category);
+      const vertexCount = shape.vertices.length;
+
+      // Stars 0..N-1 snap to shape vertices.
+      shape.vertices.forEach(([vx, vy], i) => {
+        const itemId = con.itemIds[i];
+        if (!itemId) return;
         positions[itemId] = {
-          x: cx + Math.cos(angle) * radius,
-          y: cy + Math.sin(angle) * radius,
+          x: cx + vx * SHAPE_RADIUS_PCT,
+          y: cy + vy * SHAPE_RADIUS_PCT,
           constellation: con,
+          isVertex: true,
         };
       });
-    });
-    return positions;
-  }, [constellations]);
 
-  return { constellations, clusterPositions, newConstellation };
+      // Extras orbit the cluster center beyond the shape's bounding ring.
+      const extras = con.itemIds.slice(vertexCount);
+      extras.forEach((itemId, i) => {
+        const angle = (i / Math.max(extras.length, 1)) * Math.PI * 2 + (i * 0.6);
+        const orbitR = SHAPE_RADIUS_PCT + EXTRA_ORBIT_PCT + (i % 2) * 2;
+        positions[itemId] = {
+          x: cx + Math.cos(angle) * orbitR,
+          y: cy + Math.sin(angle) * orbitR,
+          constellation: con,
+          isVertex: false,
+        };
+      });
+
+      // Skeleton edges in viewport % — drawn by NightSky as SVG lines.
+      const edgePoints = shape.edges.map(([a, b]) => ({
+        x1: cx + shape.vertices[a][0] * SHAPE_RADIUS_PCT,
+        y1: cy + shape.vertices[a][1] * SHAPE_RADIUS_PCT,
+        x2: cx + shape.vertices[b][0] * SHAPE_RADIUS_PCT,
+        y2: cy + shape.vertices[b][1] * SHAPE_RADIUS_PCT,
+      }));
+      skeletonList.push({
+        id: con.id,
+        category: con.category,
+        shape,
+        edges: edgePoints,
+        cx, cy,
+      });
+    });
+
+    return { clusterPositions: positions, skeletons: skeletonList };
+  }, [constellations, mode]);
+
+  return { constellations, clusterPositions, skeletons, newConstellation };
 }

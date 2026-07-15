@@ -3,6 +3,21 @@
   50% { opacity: 1; }
 }
 
+@keyframes twinkleSlow {
+  0%, 100% { opacity: 0.25; transform: scale(0.95); }
+  50% { opacity: 0.55; transform: scale(1.02); }
+}
+
+@keyframes starBreathe {
+  0%, 100% { opacity: 0.48; transform: scale(1); }
+  50% { opacity: 0.78; transform: scale(1.06); }
+}
+
+@keyframes starPulse {
+  0%, 100% { opacity: 0.72; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 0.7; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.2); }

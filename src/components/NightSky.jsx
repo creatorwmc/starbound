@@ -4,6 +4,10 @@ import SkyTimeline from "./SkyTimeline";
 import { CATEGORIES } from "../theme";
 import { generateDateRange } from "../utils/dateUtils";
 
+function categoryColor(catId) {
+  return CATEGORIES.find((c) => c.id === catId)?.color || "#9aa3c7";
+}
+
 export default function NightSky({
   items,
   theme,
@@ -19,6 +23,7 @@ export default function NightSky({
   setTimelineMode,
   newStarId,
   clusterPositions,
+  skeletons,
 }) {
   const [viewDate, setViewDate] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -117,6 +122,33 @@ export default function NightSky({
           pointerEvents: "none",
         }} />
       ))}
+
+      {/* Constellation skeletons — drawn beneath the stars */}
+      {skeletons && skeletons.length > 0 && (
+        <svg
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}
+        >
+          {skeletons.map((skel) => {
+            const color = categoryColor(skel.category);
+            return (
+              <g key={skel.id} opacity={immersive ? 0.55 : 0.32}>
+                {skel.edges.map((e, i) => (
+                  <line
+                    key={i}
+                    x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+                    stroke={color}
+                    strokeWidth="0.12"
+                    strokeLinecap="round"
+                    style={{ filter: `drop-shadow(0 0 0.4px ${color})` }}
+                  />
+                ))}
+              </g>
+            );
+          })}
+        </svg>
+      )}
 
       {/* Bucket list stars */}
       {displayItems.map((item, i) => (
