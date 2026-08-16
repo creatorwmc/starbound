@@ -126,10 +126,10 @@ export const OUR_APPS = [
     url: "https://solitaire-plus.netlify.app",
   },
   {
-    name: "The Paige Hospital",
-    desc: "Family health & care hub",
+    name: "Vigil",
+    desc: "Care coordination",
     icon: "🏥",
-    url: "https://paigehospital.netlify.app",
+    url: "https://vigil-pwa.netlify.app",
   },
 ];
 
