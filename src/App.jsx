@@ -7,7 +7,8 @@ import { HospitalityProvider, WelcomeMoment, createFirestoreStorage } from "./ho
 const hospitalityStorage = createFirestoreStorage(db);
 import { useItems } from "./hooks/useItems";
 import { useMessages } from "./hooks/useMessages";
-import KairosBadge from "./components/KairosBadge";
+import AppChrome from "./components/AppChrome";
+import FeedbackButton from "./lib/workbench/FeedbackButton";
 import {
   getKairosMembership,
   clearKairosMembershipCache,
@@ -25,10 +26,8 @@ import TheHearth from "./components/TheHearth";
 import OurHome from "./components/OurHome";
 import HiddenGems from "./components/HiddenGems";
 import SettingsView from "./components/SettingsView";
-import NavMenu from "./components/NavMenu";
 import AddItemModal from "./components/AddItemModal";
 import ItemDetail from "./components/ItemDetail";
-import AvatarCircle from "./components/AvatarCircle";
 import StaceyIntro from "./components/StaceyIntro";
 import BroadcastBanner from "./components/BroadcastBanner";
 
@@ -72,6 +71,8 @@ export default function App() {
   return <AuthedApp currentUser={currentUser} uid={authUid} user={authUser} />;
 }
 
+const WORKBENCH_ENDPOINT = "https://kairos-pwa.netlify.app/.netlify/functions/workbench-submit";
+
 function AuthedApp({ currentUser, uid, user }) {
   const [kairosMembership, setKairosMembership] = useState(
     () => readCachedMembership(user?.email)
@@ -88,12 +89,18 @@ function AuthedApp({ currentUser, uid, user }) {
     return () => { cancelled = true; };
   }, [user]);
 
+  const [showFeedbackTab, setShowFeedbackTab] = useState(() => {
+    try { return localStorage.getItem("starbound_show_feedback_tab") === "true"; } catch { return false; }
+  });
+  const toggleFeedbackTab = (on) => {
+    setShowFeedbackTab(on);
+    try { localStorage.setItem("starbound_show_feedback_tab", on ? "true" : "false"); } catch {}
+  };
   const [showStaceyIntro, setShowStaceyIntro] = useState(() => {
     if (currentUser !== "stacey") return false;
     try { return !localStorage.getItem("starbound_stacey_intro_seen"); } catch { return false; }
   });
   const [currentView, setCurrentView] = useState("sky");
-  const [showMenu, setShowMenu] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [filters, setFilters] = useState({});
@@ -204,135 +211,94 @@ function AuthedApp({ currentUser, uid, user }) {
       WelcomeMoment={WelcomeMoment}
       welcomeTourId="starbound-main"
     >
-    <div style={{
-      width: "100%", height: "100dvh", overflow: "hidden", position: "relative",
-      background: theme.bg, color: theme.textPrimary,
-    }}>
-      {/* Top bar */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, right: 0, height: "56px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 12px", zIndex: 20,
-        background: currentView === "sky" ? "transparent" : theme.bg,
-        opacity: immersive ? 0 : 1,
-        pointerEvents: immersive ? "none" : "auto",
-        transition: "opacity 0.6s ease",
-      }}>
-        <button
-          data-hospitality="menu"
-          onClick={() => setShowMenu(true)}
-          style={{
-            background: "rgba(255,255,255,0.08)", border: "none",
-            color: theme.textPrimary, fontSize: "18px", cursor: "pointer",
-            width: "40px", height: "40px", borderRadius: "12px",
-            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-          }}
-        >
-          ☰
-        </button>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <KairosBadge membership={kairosMembership} theme={theme} />
-          {currentView === "sky" && !timelineMode && (
-            <button
-              data-hospitality="immersive"
-              onClick={() => setImmersive(true)}
-              style={{
-                width: "32px", height: "32px", borderRadius: "50%",
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-                color: theme.textSecondary, fontSize: "13px", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-              }}
-              title="Just the sky"
-            >
-              ✦
-            </button>
-          )}
-
-          <span style={{
-            fontSize: "16px", fontWeight: 700, letterSpacing: "2px",
-            background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})`,
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          }}>
-            STARBOUND
-          </span>
-
-          {currentView === "sky" && !timelineMode && (
-            <button
-              data-hospitality="timeline"
-              onClick={() => setTimelineMode(true)}
-              style={{
-                width: "32px", height: "32px", borderRadius: "50%",
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-                color: theme.textSecondary, fontSize: "14px", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-              }}
-              title="Sky Timeline"
-            >
-              ⏳
-            </button>
-          )}
-        </div>
-
-        <div
-          data-hospitality="avatar"
-          onClick={() => handleNavigate("settings")}
-          style={{
-            width: "40px", height: "40px",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", flexShrink: 0,
-          }}>
-          <AvatarCircle user={currentUser} size={36} />
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div style={{
-        position: "absolute",
-        top: immersive ? 0 : "56px",
-        bottom: 0, left: 0, right: 0,
-        overflow: "auto", transition: "top 0.6s ease",
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}>
-        {!immersive && currentView !== "sky" && <BroadcastBanner theme={theme} />}
-        {currentView === "sky" && (
+      {immersive ? (
+        <div style={{
+          width: "100%", height: "100dvh", overflow: "hidden",
+          position: "relative", background: theme.bg, color: theme.textPrimary,
+        }}>
           <NightSky
             items={filteredItems} theme={theme}
             onItemClick={(item) => setSelectedItem(item)}
             onAddNew={() => setShowAddItem(true)}
             onGoHome={() => handleNavigate("home")}
             rememberThis={rememberThis} filters={filters} setFilters={setFilters}
-            immersive={immersive} onToggleImmersive={setImmersive}
+            immersive={true} onToggleImmersive={setImmersive}
             timelineMode={timelineMode} setTimelineMode={setTimelineMode}
             newStarId={newStarId} clusterPositions={clusterPositions} skeletons={skeletons}
           />
-        )}
-        {currentView === "list" && (
-          <BucketListView items={items} theme={theme} onItemClick={(item) => setSelectedItem(item)} currentUser={currentUser} />
-        )}
-        {currentView === "feed" && <ActivityFeed activities={activities} theme={theme} />}
-        {currentView === "jar" && (
-          <TheHearth
-            messages={messages}
-            theme={theme}
-            currentUser={currentUser}
-            onSend={sendMessage}
-            kairosMembership={kairosMembership}
-          />
-        )}
-        {currentView === "home" && <OurHome theme={theme} currentUser={currentUser} />}
-        {currentView === "gems" && <HiddenGems theme={theme} currentUser={currentUser} triggers={triggers} onPlant={plantTrigger} />}
-        {currentView === "settings" && (
-          <SettingsView
-            theme={theme}
-            currentUser={currentUser}
-            constellationMode={prefs.constellationMode}
-            onSetConstellationMode={setConstellationMode}
-          />
-        )}
-      </div>
+        </div>
+      ) : (
+        <AppChrome theme={theme} currentView={currentView} onNavigate={handleNavigate} showFeedbackTab={showFeedbackTab} onToggleFeedbackTab={toggleFeedbackTab}>
+          {currentView !== "sky" && <BroadcastBanner theme={theme} />}
+          {currentView === "sky" && (
+            <div style={{ height: "100%", position: "relative" }}>
+              {!timelineMode && (
+                <div style={{
+                  position: "absolute", top: 8, right: 12,
+                  display: "flex", gap: 6, zIndex: 10,
+                }}>
+                  <button
+                    data-hospitality="immersive"
+                    onClick={() => setImmersive(true)}
+                    style={{
+                      width: 32, height: 32, borderRadius: "50%",
+                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                      color: theme.textSecondary, fontSize: 13, cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                    title="Just the sky"
+                  >
+                    ✦
+                  </button>
+                  <button
+                    data-hospitality="timeline"
+                    onClick={() => setTimelineMode(true)}
+                    style={{
+                      width: 32, height: 32, borderRadius: "50%",
+                      background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                      color: theme.textSecondary, fontSize: 14, cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                    title="Sky Timeline"
+                  >
+                    ⏳
+                  </button>
+                </div>
+              )}
+              <NightSky
+                items={filteredItems} theme={theme}
+                onItemClick={(item) => setSelectedItem(item)}
+                onAddNew={() => setShowAddItem(true)}
+                onGoHome={() => handleNavigate("home")}
+                rememberThis={rememberThis} filters={filters} setFilters={setFilters}
+                immersive={false} onToggleImmersive={setImmersive}
+                timelineMode={timelineMode} setTimelineMode={setTimelineMode}
+                newStarId={newStarId} clusterPositions={clusterPositions} skeletons={skeletons}
+              />
+            </div>
+          )}
+          {currentView === "list" && (
+            <BucketListView items={items} theme={theme} onItemClick={(item) => setSelectedItem(item)} currentUser={currentUser} />
+          )}
+          {currentView === "feed" && <ActivityFeed activities={activities} theme={theme} />}
+          {currentView === "jar" && (
+            <TheHearth
+              messages={messages} theme={theme} currentUser={currentUser}
+              onSend={sendMessage} kairosMembership={kairosMembership}
+            />
+          )}
+          {currentView === "home" && <OurHome theme={theme} currentUser={currentUser} />}
+          {currentView === "gems" && <HiddenGems theme={theme} currentUser={currentUser} triggers={triggers} onPlant={plantTrigger} />}
+          {currentView === "settings" && (
+            <SettingsView
+              theme={theme} currentUser={currentUser}
+              constellationMode={prefs.constellationMode}
+              onSetConstellationMode={setConstellationMode}
+            />
+          )}
+        </AppChrome>
+      )}
 
-      {showMenu && <NavMenu theme={theme} currentView={currentView} onNavigate={handleNavigate} onClose={() => setShowMenu(false)} />}
       {showAddItem && <AddItemModal theme={theme} currentUser={currentUser} onSave={handleAddItem} onClose={() => setShowAddItem(false)} />}
       {selectedItem && (
         <ItemDetail item={selectedItem} theme={theme} currentUser={currentUser}
@@ -352,7 +318,17 @@ function AuthedApp({ currentUser, uid, user }) {
           try { localStorage.setItem("starbound_stacey_intro_seen", "true"); } catch {}
         }} />
       )}
-    </div>
+      <FeedbackButton
+        appId="starbound"
+        appName="Starbound"
+        endpoint={WORKBENCH_ENDPOINT}
+        user={user ? { email: user.email, displayName: user.displayName } : null}
+        getIdToken={() => user?.getIdToken()}
+        accent={theme.primary}
+        surface="rgba(12, 12, 46, 0.95)"
+        textColor={theme.textPrimary}
+        hideTrigger
+      />
     </HospitalityProvider>
   );
 }
